@@ -2,14 +2,19 @@ package com.denma.goforlunch.Controllers.Activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 
 import com.denma.goforlunch.R;
+import com.denma.goforlunch.Utils.UserHelper;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentSnapshot;
 
 
 import java.util.Arrays;
@@ -67,6 +72,23 @@ public class MainActivity extends BaseActivity {
         this.startGoogleSignInActivity();
     }
 
+    // ---------------
+    // REST REQUEST
+    // ---------------
+
+    // - Http request that create user in firestore
+    private void createUserInFireStore(){
+        if (this.getCurrentUser() != null){
+            String urlPicture = (this.getCurrentUser().getPhotoUrl()!= null) ? this.getCurrentUser().getPhotoUrl().toString() : null;
+            String username = this.getCurrentUser().getDisplayName();
+            String mail = this.getCurrentUser().getEmail();
+            String uid = this.getCurrentUser().getUid();
+
+            UserHelper.createUser(uid, username, mail, urlPicture)
+                    .addOnFailureListener(this.onFailureListener());
+        }
+    }
+
     // --------------------
     // NAVIGATION
     // --------------------
@@ -108,15 +130,26 @@ public class MainActivity extends BaseActivity {
 
         IdpResponse response = IdpResponse.fromResultIntent(data);
 
-        if (requestCode == RC_SIGN_IN) {
+        if (requestCode == RC_SIGN_IN){
             if (resultCode == RESULT_OK) { // SUCCESS
-                showSnackBar(this.coordinatorLayout, getString(R.string.connection_succeed));
+                UserHelper.getUsersCollection().document(this.getCurrentUser().getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if(!task.getResult().exists()) {
+                            createUserInFireStore();
+                            showSnackBar(coordinatorLayout, getString(R.string.account_creation_done));
+                        } else {
+                            showSnackBar(coordinatorLayout, getString(R.string.connection_succeed));
+                        }
+                    }
+                });
+
             } else { // ERRORS
-                if (response == null) {
+                if (response == null){
                     showSnackBar(this.coordinatorLayout, getString(R.string.error_authentication_canceled));
-                } else if (response.getErrorCode() == ErrorCodes.NO_NETWORK) {
+                } else if (response.getErrorCode() == ErrorCodes.NO_NETWORK){
                     showSnackBar(this.coordinatorLayout, getString(R.string.error_no_internet));
-                } else if (response.getErrorCode() == ErrorCodes.UNKNOWN_ERROR) {
+                } else if (response.getErrorCode() == ErrorCodes.UNKNOWN_ERROR){
                     showSnackBar(this.coordinatorLayout, getString(R.string.error_unknown_error));
                 }
             }
