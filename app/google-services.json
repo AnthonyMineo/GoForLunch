@@ -1,0 +1,59 @@
+{
+  "project_info": {
+    "project_number": "207257379656",
+    "firebase_url": "https://go4lunch-denma.firebaseio.com",
+    "project_id": "go4lunch-denma",
+    "storage_bucket": "go4lunch-denma.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:207257379656:android:15ce60e754e2b083",
+        "android_client_info": {
+          "package_name": "com.denma.goforlunch"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "207257379656-4cmk2pig2aflpl5v9te10bukkg1e13ga.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.denma.goforlunch",
+            "certificate_hash": "f66df97f97de65326f8408166f92958e1895885b"
+          }
+        },
+        {
+          "client_id": "207257379656-lh0djqseset3ou41h8s5fh4n3cjgciin.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "207257379656-lh0djqseset3ou41h8s5fh4n3cjgciin.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANZfKREO18a_97keoiBvwovSwpTaHa6TE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "207257379656-lh0djqseset3ou41h8s5fh4n3cjgciin.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
