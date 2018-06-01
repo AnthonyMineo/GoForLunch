@@ -1,9 +1,7 @@
 package com.denma.goforlunch.Controllers.Activities;
 
 import android.content.Intent;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 
@@ -98,7 +96,6 @@ public class MainActivity extends BaseActivity {
         startActivityForResult(
                 AuthUI.getInstance()
                         .createSignInIntentBuilder()
-                        .setTheme(R.style.LoginTheme)
                         .setAvailableProviders(
                                 Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.FACEBOOK_PROVIDER).build())) //FACEBOOK
                         .setIsSmartLockEnabled(false, true)
@@ -112,7 +109,6 @@ public class MainActivity extends BaseActivity {
         startActivityForResult(
                 AuthUI.getInstance()
                         .createSignInIntentBuilder()
-                        .setTheme(R.style.LoginTheme)
                         .setAvailableProviders(
                                 Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build())) //GOOGLE
                         .setIsSmartLockEnabled(false, true)
@@ -137,12 +133,13 @@ public class MainActivity extends BaseActivity {
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if(!task.getResult().exists()) {
                             createUserInFireStore();
-                            showSnackBar(coordinatorLayout, getString(R.string.account_creation_done));
-                        } else {
-                            showSnackBar(coordinatorLayout, getString(R.string.connection_succeed));
                         }
                     }
                 });
+
+                // - Launch Lunch Activity
+                Intent lunchIntent = new Intent(MainActivity.this, LunchActivity.class);
+                this.startActivity(lunchIntent);
 
             } else { // ERRORS
                 if (response == null){
