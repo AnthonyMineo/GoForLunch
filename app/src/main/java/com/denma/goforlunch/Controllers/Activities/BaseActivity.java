@@ -16,6 +16,8 @@ import butterknife.ButterKnife;
 
 public abstract class BaseActivity extends AppCompatActivity {
 
+    protected abstract int getActivityLayout();
+
     // --------------------
     // LIFE CYCLE
     // --------------------
@@ -26,8 +28,6 @@ public abstract class BaseActivity extends AppCompatActivity {
         this.setContentView(this.getActivityLayout());
         ButterKnife.bind(this); //Configure Butterknife
     }
-
-    public abstract int getActivityLayout();
 
     // --------------------
     // UTILS

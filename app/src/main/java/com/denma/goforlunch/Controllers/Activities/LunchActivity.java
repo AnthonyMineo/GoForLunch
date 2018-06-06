@@ -4,6 +4,7 @@ import android.support.annotation.Nullable;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
@@ -14,6 +15,7 @@ import android.view.MenuItem;
 
 import com.denma.goforlunch.R;
 import com.denma.goforlunch.Views.PageAdapter;
+import com.google.android.gms.maps.MapFragment;
 
 public class LunchActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -24,6 +26,8 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
     private TabLayout tabs;
     private ViewPager pager;
 
+    private MapFragment mMapFragment;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,10 +35,11 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
         this.configureDrawerLayout();
         this.configureNavigationView();
         this.configureViewPagerAndTabs();
+        this.showFirstFragment();
     }
 
     @Override
-    public int getActivityLayout() { return R.layout.activity_lunch; }
+    protected int getActivityLayout() { return R.layout.activity_lunch; }
 
     // --------------
     // CONFIGURATION
@@ -71,6 +76,20 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
         // - Glue TabLayout and ViewPager together
         tabs.setupWithViewPager(pager);
         // - Design purpose. Tabs have the same width
+    }
+
+    // 5 - Show first fragment
+    private void showFirstFragment(){
+        Fragment visibleFragment = getSupportFragmentManager().findFragmentById(R.id.activity_lunch_viewpager);
+        if (visibleFragment == null){
+            // - Show MapFragment
+            this.showMapFragment();
+        }
+    }
+
+    private void showMapFragment(){
+        if (this.mMapFragment == null) this.mMapFragment = mMapFragment.newInstance();
+        pager.setCurrentItem(0);
     }
 
     // ---------------

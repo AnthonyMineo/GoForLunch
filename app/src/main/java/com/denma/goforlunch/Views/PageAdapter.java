@@ -12,6 +12,7 @@ import com.denma.goforlunch.Controllers.Fragments.RestaurantsListFragment;
 public class PageAdapter extends FragmentPagerAdapter {
 
     Context context;
+
     //Constructor
     public PageAdapter(FragmentManager mgr, Context mContext) {
         super(mgr);

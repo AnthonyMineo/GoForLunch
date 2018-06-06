@@ -8,17 +8,9 @@ import com.denma.goforlunch.R;
 
 public class RestaurantsListFragment extends BaseFragment {
 
-
     public RestaurantsListFragment() { }
 
-    public static RestaurantsListFragment newInstance() {
-        
-        Bundle args = new Bundle();
-        
-        RestaurantsListFragment fragment = new RestaurantsListFragment();
-        fragment.setArguments(args);
-        return fragment;
-    }
+    public static RestaurantsListFragment newInstance() { return new RestaurantsListFragment(); }
 
     @Override
     public int getFragmentLayout() { return R.layout.fragment_restaurants_list; }

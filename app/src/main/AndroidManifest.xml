@@ -4,6 +4,7 @@
 
     <!-- PERMISSION -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -30,6 +31,12 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".Controllers.Activities.MainActivity" />
         </activity>
+
+        <!-- Google API Key / Android restriction -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyAlBrEqf42e79VcDn4SVV8yuh6k4R5_TdM"/>
+
     </application>
 
 </manifest>
