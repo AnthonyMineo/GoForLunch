@@ -17,6 +17,7 @@ import com.denma.goforlunch.R;
 import com.denma.goforlunch.Views.PageAdapter;
 import com.google.android.gms.maps.MapFragment;
 
+
 public class LunchActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     //FOR DESIGN
@@ -28,9 +29,12 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
 
     private MapFragment mMapFragment;
 
+
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         this.configureToolBar();
         this.configureDrawerLayout();
         this.configureNavigationView();

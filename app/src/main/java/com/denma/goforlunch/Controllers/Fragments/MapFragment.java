@@ -1,30 +1,38 @@
 package com.denma.goforlunch.Controllers.Fragments;
 
 
+import android.Manifest;
+import android.annotation.SuppressLint;
+
+import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.denma.goforlunch.R;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
+
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import pub.devrel.easypermissions.EasyPermissions;
 
 
-public class MapFragment extends BaseFragment implements OnMapReadyCallback {
+public class MapFragment extends BaseFragment implements OnMapReadyCallback, GoogleMap.OnMyLocationButtonClickListener, GoogleMap.OnMyLocationClickListener {
 
+    // FOR DESIGN
     private GoogleMap mMap;
     @BindView(R.id.map)
     MapView mMapView;
+
+    // FOR DATA
+    private static final String PERMS = Manifest.permission.ACCESS_FINE_LOCATION;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -38,19 +46,45 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
     public MapFragment() {
     }
 
-    public static MapFragment newInstance() { return new MapFragment(); }
+    public static MapFragment newInstance() {
+        return new MapFragment();
+    }
 
     @Override
-    public int getFragmentLayout() { return R.layout.fragment_map; }
+    public int getFragmentLayout() {
+        return R.layout.fragment_map;
+    }
 
+    @SuppressLint("MissingPermission")
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+
+        mMap.setOnMyLocationButtonClickListener(this);
+        mMap.setOnMyLocationClickListener(this);
+
+        // - Check for permission
+        if (EasyPermissions.hasPermissions(getContext(), PERMS)) {
+            mMap.setMyLocationEnabled(true);
+        }
+
     }
+
+    @Override
+    public boolean onMyLocationButtonClick() {
+        // Return false so that we don't consume the event and the default behavior still occurs
+        // The camera animates to the user's current position.
+        return false;
+    }
+
+    @Override
+    public void onMyLocationClick(@NonNull Location location) {
+        // Maybe useful later
+    }
+
+    // ---------------
+    // LIFE CYCLE
+    // ---------------
 
     // Docs suggest to override them
     @Override
@@ -96,4 +130,5 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
             mMapView.onSaveInstanceState(outState);
         }
     }
+
 }
