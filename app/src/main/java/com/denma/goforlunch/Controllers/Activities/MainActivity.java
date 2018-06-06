@@ -26,15 +26,18 @@ import pub.devrel.easypermissions.EasyPermissions;
 
 public class MainActivity extends BaseActivity {
 
-    //FOR DATA
+    // FOR DATA
     // - Identifier for Sign-In Activity
     private static final int RC_SIGN_IN = 123;
 
+    // FOR PERMISSIONS
     private static final String PERMS = Manifest.permission.ACCESS_FINE_LOCATION;
     private static final int RC_LOCATION_PERMS = 100;
+    private static final String PERMS2 = Manifest.permission.ACCESS_COARSE_LOCATION;
+    private static final int RC_LOCATION_PERMS2 = 200;
 
 
-    //FOR DESIGN
+    // FOR DESIGN
     // - Get Coordinator Layout
     @BindView(R.id.main_activity_coordinator_layout)
     CoordinatorLayout coordinatorLayout;
@@ -174,6 +177,9 @@ public class MainActivity extends BaseActivity {
     private void checkForPermission(){
         if (!EasyPermissions.hasPermissions(this, PERMS)) {
             EasyPermissions.requestPermissions(this, getString(R.string.popup_title_permission_location_access), RC_LOCATION_PERMS, PERMS);
+        }
+        if (!EasyPermissions.hasPermissions(this, PERMS2)) {
+            EasyPermissions.requestPermissions(this, getString(R.string.popup_title_permission_location_access), RC_LOCATION_PERMS2, PERMS2);
         }
     }
 

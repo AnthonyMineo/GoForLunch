@@ -12,12 +12,18 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 
+import com.denma.goforlunch.Controllers.Activities.LunchActivity;
 import com.denma.goforlunch.R;
+import com.google.android.gms.location.FusedLocationProviderClient;
+
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
-
+import com.google.android.gms.maps.model.LatLng;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -30,6 +36,11 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
     private GoogleMap mMap;
     @BindView(R.id.map)
     MapView mMapView;
+
+    // FOR DATA
+    private FusedLocationProviderClient mFusedLocationClient;
+    private LatLng currentPosition;
+    private LunchActivity mLunchActivity;
 
     // FOR DATA
     private static final String PERMS = Manifest.permission.ACCESS_FINE_LOCATION;
@@ -50,6 +61,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
         return new MapFragment();
     }
 
+
     @Override
     public int getFragmentLayout() {
         return R.layout.fragment_map;
@@ -63,11 +75,23 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
         mMap.setOnMyLocationButtonClickListener(this);
         mMap.setOnMyLocationClickListener(this);
 
+        // - Adjust MyLocation Button position on screen
+        View locationButton = (View) mMapView.findViewWithTag("GoogleMapMyLocationButton");
+        RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams)
+                locationButton.getLayoutParams();
+        // - Position on right bottom
+        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
+        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
+        layoutParams.setMargins(0, 0, 30, 30);
+
         // - Check for permission
         if (EasyPermissions.hasPermissions(getContext(), PERMS)) {
             mMap.setMyLocationEnabled(true);
         }
 
+        mLunchActivity = (LunchActivity) getActivity();
+        currentPosition = new LatLng(mLunchActivity.getCurrentLat(), mLunchActivity.getCurrentLng());
+        changeFocusPosition(currentPosition);
     }
 
     @Override
@@ -80,6 +104,13 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
     @Override
     public void onMyLocationClick(@NonNull Location location) {
         // Maybe useful later
+    }
+
+    // - Change the Camera position on the map to the given LatLng
+    public void changeFocusPosition(LatLng latLng){
+        CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng,
+                16);
+        mMap.moveCamera(update);
     }
 
     // ---------------
