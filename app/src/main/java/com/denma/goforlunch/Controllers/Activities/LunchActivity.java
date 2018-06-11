@@ -1,6 +1,5 @@
 package com.denma.goforlunch.Controllers.Activities;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 
@@ -48,7 +47,6 @@ import pub.devrel.easypermissions.EasyPermissions;
 
 public class LunchActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener, GoogleApiClient.OnConnectionFailedListener {
 
-
     // FOR DESIGN
     private Toolbar toolbar;
     private DrawerLayout drawerLayout;
@@ -57,17 +55,18 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
     private ViewPager pager;
     private MapFragment mMapFragment;
 
-    // FOR API
-    private GoogleApiClient mGoogleApiClient;
-
     // FOR PERMISSIONS
-    private static final String PERMS2 = Manifest.permission.ACCESS_COARSE_LOCATION;
 
     // FOR DATA
     private static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
     private FusedLocationProviderClient mFusedLocationClient;
     private double currentLat;
     private double currentLng;
+    private LatLng focusPos;
+
+    // --------------------
+    // CREATION
+    // --------------------
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -78,6 +77,16 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
         this.configureViewPagerAndTabs();
         this.configureAPIandPosition();
         this.showFirstFragment();
+        Log.e("ACTIVITY", "onCreateOK");
+    }
+
+    // --------------------
+    // GETTERS
+    // --------------------
+
+    @Override
+    protected int getActivityLayout() {
+        return R.layout.activity_lunch;
     }
 
     public double getCurrentLat() {
@@ -88,114 +97,17 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
         return currentLng;
     }
 
-    @Override
-    protected int getActivityLayout() {
-        return R.layout.activity_lunch;
+    public LatLng getFocusPos() {
+        return focusPos;
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
-            if (resultCode == RESULT_OK) {
-                Place place = PlaceAutocomplete.getPlace(this, data);
-                Log.i("Info", "Place: " + place.getName());
+    // --------------------
+    // SETTERS
+    // --------------------
 
-            } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
-                Status status = PlaceAutocomplete.getStatus(this, data);
-                // - Handle the error.
-                Log.i("Info", status.getStatusMessage());
-
-            } else if (resultCode == RESULT_CANCELED) {
-                // The user canceled the operation.
-            }
-        }
-    }
-
-    // --------------
-    // CONFIGURATION
-    // --------------
-
-    // - Configure Toolbar
-    private void configureToolBar() {
-        this.toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-    }
-
-    // - Configure Drawer Layout
-    private void configureDrawerLayout() {
-        this.drawerLayout = (DrawerLayout) findViewById(R.id.activity_lunch_drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawerLayout.addDrawerListener(toggle);
-        toggle.syncState();
-    }
-
-    // - Configure NavigationView
-    private void configureNavigationView() {
-        this.navigationView = (NavigationView) findViewById(R.id.activity_lunch_nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-    }
-
-    // - Configure ViewPager and TabLayout
-    private void configureViewPagerAndTabs() {
-        // - Get ViewPager from layout
-        pager = (ViewPager) findViewById(R.id.activity_lunch_viewpager);
-        // - Set Adapter PageAdapter and glue it together
-        pager.setAdapter(new PageAdapter(getSupportFragmentManager(), this));
-        // - Get TabLayout from layout
-        tabs = (TabLayout) findViewById(R.id.activity_lunch_tabs);
-        // - Glue TabLayout and ViewPager together
-        tabs.setupWithViewPager(pager);
-        // - Design purpose. Tabs have the same width
-    }
-
-    // - Configure API
-    @SuppressLint("MissingPermission")
-    private void configureAPIandPosition() {
-        mGoogleApiClient = new GoogleApiClient
-                .Builder(this)
-                .addApi(Places.GEO_DATA_API)
-                .addApi(Places.PLACE_DETECTION_API)
-                .enableAutoManage(this, this)
-                .build();
-
-        // - Check for permission
-        if (EasyPermissions.hasPermissions(this, PERMS2)) {
-            mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-            mFusedLocationClient.getLastLocation().addOnSuccessListener(this, new OnSuccessListener<Location>() {
-                @Override
-                public void onSuccess(Location location) {
-                    currentLat = location.getLatitude();
-                    currentLng = location.getLongitude();
-                    // Got last known location. In some rare situations this can be null.
-                    if (location != null) {
-                        // Logic to handle location object
-                    }
-                }
-            });
-        }
-    }
-
-    // - Show first fragment
-    private void showFirstFragment(){
-        Fragment visibleFragment = getSupportFragmentManager().findFragmentById(R.id.activity_lunch_viewpager);
-        if (visibleFragment == null){
-            // - Show MapFragment
-            this.showMapFragment();
-        }
-    }
-
-    // ---------------
-    // NAVIGATION
-    // ---------------
-
-    private void showMapFragment(){
-        if (this.mMapFragment == null) this.mMapFragment = mMapFragment.newInstance();
-        pager.setCurrentItem(0);
-    }
-
-    // ---------------
+    // --------------------
     // MENU
-    // ---------------
+    // --------------------
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -250,9 +162,78 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
         return true;
     }
 
-    // ---------------
+    // --------------------
     // ACTIONS
-    // ---------------
+    // --------------------
+
+    // - Configure Toolbar
+    private void configureToolBar() {
+        this.toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+    }
+
+    // - Configure Drawer Layout
+    private void configureDrawerLayout() {
+        this.drawerLayout = (DrawerLayout) findViewById(R.id.activity_lunch_drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
+    }
+
+    // - Configure NavigationView
+    private void configureNavigationView() {
+        this.navigationView = (NavigationView) findViewById(R.id.activity_lunch_nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+    }
+
+    // - Configure ViewPager and TabLayout
+    private void configureViewPagerAndTabs() {
+        // - Get ViewPager from layout
+        pager = (ViewPager) findViewById(R.id.activity_lunch_viewpager);
+        // - Set Adapter PageAdapter and glue it together
+        pager.setAdapter(new PageAdapter(getSupportFragmentManager(), this));
+        // - Get TabLayout from layout
+        tabs = (TabLayout) findViewById(R.id.activity_lunch_tabs);
+        // - Glue TabLayout and ViewPager together
+        tabs.setupWithViewPager(pager);
+        // - Design purpose. Tabs have the same width
+    }
+
+    // - Configure API
+    @SuppressLint("MissingPermission")
+    private void configureAPIandPosition() {
+        this.mGoogleApiClient = new GoogleApiClient
+                .Builder(this)
+                .addApi(Places.GEO_DATA_API)
+                .addApi(Places.PLACE_DETECTION_API)
+                .enableAutoManage(this, this)
+                .build();
+
+        // - Check for permission
+        if (EasyPermissions.hasPermissions(this, PERMS2)) {
+            mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+            mFusedLocationClient.getLastLocation().addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                @Override
+                public void onSuccess(Location location) {
+                    currentLat = location.getLatitude();
+                    currentLng = location.getLongitude();
+                    // Got last known location. In some rare situations this can be null.
+                    if (location != null) {
+                        // Logic to handle location object
+                    }
+                }
+            });
+        }
+    }
+
+    // - Show first fragment
+    private void showFirstFragment(){
+        Fragment visibleFragment = getSupportFragmentManager().findFragmentById(R.id.activity_lunch_viewpager);
+        if (visibleFragment == null){
+            // - Show MapFragment
+            this.showMapFragment();
+        }
+    }
 
     // - Decide how the search should work depending on viewpager's current fragment display
     private void chooseSearchEffect(){
@@ -306,12 +287,82 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
         Toast.makeText(this, "CoWorker", Toast.LENGTH_SHORT);
     }
 
-    // ---------------
+    // --------------------
+    // UTILS
+    // --------------------
+
+    // --------------------
+    // NAVIGATION
+    // --------------------
+
+    private void showMapFragment(){
+        if (this.mMapFragment == null) this.mMapFragment = mMapFragment.newInstance();
+        pager.setCurrentItem(0);
+    }
+
+    // --------------------
     // ERROR HANDLER
-    // ---------------
+    // --------------------
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         Toast.makeText(this, "Impossible de se connecter aus APIs Google", Toast.LENGTH_SHORT);
+    }
+
+    // --------------------
+    // LIFE CYCLE
+    // --------------------
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                Place place = PlaceAutocomplete.getPlace(this, data);
+                Log.i("Info", "Place: " + place.getName() + " " + place.getLatLng().toString());
+                this.focusPos = place.getLatLng();
+
+            } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
+                Status status = PlaceAutocomplete.getStatus(this, data);
+                // - Handle the error.
+                Log.i("Info", status.getStatusMessage());
+
+            } else if (resultCode == RESULT_CANCELED) {
+                // The user canceled the operation.
+            }
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.e("ACTIVITY", "onStartOK");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.e("ACTIVITY", "onStopOK");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.e("ACTIVITY", "onPauseOK");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.e("ACTIVITY", "onResumeOK");
+        if(focusPos !=null){
+            Log.e("CCCCCCCCCC", focusPos.toString());
+        }
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.e("ACTIVITY", "onRestartOK");
     }
 }

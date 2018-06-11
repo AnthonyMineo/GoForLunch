@@ -37,7 +37,7 @@
         <!-- Google API Key / Android restriction -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyAlBrEqf42e79VcDn4SVV8yuh6k4R5_TdM"/>
+            android:value="@string/google_api_key"/>
 
     </application>
 

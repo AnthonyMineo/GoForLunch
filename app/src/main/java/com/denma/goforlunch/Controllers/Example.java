@@ -1,11 +1,11 @@
-package com.denma.goforlunch.Controllers.Fragments;
+package com.denma.goforlunch.Controllers;
 
+/*
+        A simple structure that each Controller's class should respect inside this project,
+        in order to maintain an readable and comprehensive code.
+ */
 
-
-import com.denma.goforlunch.R;
-
-
-public class RestaurantsListFragment extends BaseFragment {
+public class Example {
 
     // FOR DESIGN
 
@@ -17,16 +17,9 @@ public class RestaurantsListFragment extends BaseFragment {
     // CREATION
     // --------------------
 
-    public RestaurantsListFragment() { }
-
-    public static RestaurantsListFragment newInstance() { return new RestaurantsListFragment(); }
-
     // --------------------
     // GETTERS
     // --------------------
-
-    @Override
-    public int getFragmentLayout() { return R.layout.fragment_restaurants_list; }
 
     // --------------------
     // SETTERS
@@ -55,5 +48,4 @@ public class RestaurantsListFragment extends BaseFragment {
     // --------------------
     // LIFE CYCLE
     // --------------------
-
 }

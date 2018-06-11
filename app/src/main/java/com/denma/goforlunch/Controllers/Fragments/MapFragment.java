@@ -1,11 +1,11 @@
 package com.denma.goforlunch.Controllers.Fragments;
 
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 
 import android.location.Location;
 import android.os.Bundle;
+
 import android.support.annotation.NonNull;
 
 import android.util.Log;
@@ -16,7 +16,6 @@ import android.widget.RelativeLayout;
 
 import com.denma.goforlunch.Controllers.Activities.LunchActivity;
 import com.denma.goforlunch.R;
-import com.google.android.gms.location.FusedLocationProviderClient;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -27,6 +26,7 @@ import com.google.android.gms.maps.model.LatLng;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+
 import pub.devrel.easypermissions.EasyPermissions;
 
 
@@ -37,43 +37,63 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
     @BindView(R.id.map)
     MapView mMapView;
 
-    // FOR DATA
-    private FusedLocationProviderClient mFusedLocationClient;
-    private LatLng currentPosition;
-    private LunchActivity mLunchActivity;
+    // FOR PERMISSIONS
 
     // FOR DATA
-    private static final String PERMS = Manifest.permission.ACCESS_FINE_LOCATION;
+    private LatLng currentPosition;
+    private LatLng focusPosition;
+    private LunchActivity mLunchActivity;
+
+    // --------------------
+    // CREATION
+    // --------------------
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(this.getFragmentLayout(), container, false);
         ButterKnife.bind(this, view); //Configure Butterknife
+        this.mLunchActivity = (LunchActivity) getActivity();
         mMapView.onCreate(savedInstanceState);
         mMapView.getMapAsync(this);
+
+        Log.e("FRAGMENT", "onCreateOK");
         return view;
     }
 
-    public MapFragment() {
-    }
+    public MapFragment() { }
 
     public static MapFragment newInstance() {
         return new MapFragment();
     }
 
+    // --------------------
+    // GETTERS
+    // --------------------
 
     @Override
     public int getFragmentLayout() {
         return R.layout.fragment_map;
     }
 
+    // --------------------
+    // SETTERS
+    // --------------------
+
+    // --------------------
+    // MENU
+    // --------------------
+
+    // --------------------
+    // ACTIONS
+    // --------------------
+
     @SuppressLint("MissingPermission")
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-
-        mMap.setOnMyLocationButtonClickListener(this);
-        mMap.setOnMyLocationClickListener(this);
+        this.mMap = googleMap;
+        Log.e("FRAGMENT", "onMapReadyOK");
+        this.mMap.setOnMyLocationButtonClickListener(this);
+        this.mMap.setOnMyLocationClickListener(this);
 
         // - Adjust MyLocation Button position on screen
         View locationButton = (View) mMapView.findViewWithTag("GoogleMapMyLocationButton");
@@ -86,12 +106,13 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
 
         // - Check for permission
         if (EasyPermissions.hasPermissions(getContext(), PERMS)) {
-            mMap.setMyLocationEnabled(true);
+            this.mMap.setMyLocationEnabled(true);
         }
 
-        mLunchActivity = (LunchActivity) getActivity();
-        currentPosition = new LatLng(mLunchActivity.getCurrentLat(), mLunchActivity.getCurrentLng());
+        // - Change camera to currentPosition
+        this.currentPosition = new LatLng(mLunchActivity.getCurrentLat(), mLunchActivity.getCurrentLng());
         changeFocusPosition(currentPosition);
+
     }
 
     @Override
@@ -108,14 +129,34 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
 
     // - Change the Camera position on the map to the given LatLng
     public void changeFocusPosition(LatLng latLng){
+        Log.e("FRAGMENT", "CameraUpdate");
         CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng,
                 16);
-        mMap.moveCamera(update);
+        this.mMap.animateCamera(update);
     }
 
-    // ---------------
+    // --------------------
+    // UTILS
+    // --------------------
+
+    // --------------------
+    // NAVIGATION
+    // --------------------
+
+    // --------------------
+    // ERROR HANDLER
+    // --------------------
+
+    // --------------------
     // LIFE CYCLE
-    // ---------------
+    // --------------------
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (mMapView != null)
+            mMapView.onSaveInstanceState(outState);
+    }
 
     // Docs suggest to override them
     @Override
@@ -124,6 +165,11 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
         if (mMapView != null) {
             mMapView.onResume();
         }
+        Log.e("FRAGMENT", "onResumeOK");
+        // - Allow us to handle user's selection from Place autocomplete
+        if(mLunchActivity.getFocusPos() != null)
+            changeFocusPosition(mLunchActivity.getFocusPos());
+        Log.e("BBBBBBBBBBBBB", "Focus OK");
     }
 
     @Override
@@ -131,7 +177,9 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
         if (mMapView != null) {
             mMapView.onPause();
         }
+        Log.e("FRAGMENT", "onPauseOK");
         super.onPause();
+
     }
 
     @Override
@@ -143,6 +191,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
                 Log.e("Error","Error while attempting MapView.onDestroy(), ignoring exception", e);
             }
         }
+        Log.e("FRAGMENT", "onDestroyOK");
         super.onDestroy();
     }
 
@@ -152,14 +201,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
         if (mMapView != null) {
             mMapView.onLowMemory();
         }
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        if (mMapView != null) {
-            mMapView.onSaveInstanceState(outState);
-        }
+        Log.e("FRAGMENT", "onLowMemoryOK");
     }
 
 }

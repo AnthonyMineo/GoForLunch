@@ -33,6 +33,10 @@ dependencies {
     implementation 'com.jakewharton:butterknife:8.8.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
 
+    // ICEPICK
+    implementation 'frankiesardo:icepick:3.2.0'
+    annotationProcessor 'frankiesardo:icepick-processor:3.2.0'
+
     // FIREBASE
     implementation 'com.google.firebase:firebase-core:11.8.0'
     // FIREBASE MESSAGING
