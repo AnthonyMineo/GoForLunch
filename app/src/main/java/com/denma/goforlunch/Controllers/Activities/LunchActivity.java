@@ -25,15 +25,17 @@ import com.denma.goforlunch.R;
 import com.denma.goforlunch.Views.PageAdapter;
 
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
-import com.google.android.gms.common.api.GoogleApiClient;
 
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.Place;
+
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 
@@ -60,9 +62,11 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
     // FOR DATA
     private static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
     private FusedLocationProviderClient mFusedLocationClient;
+    private GoogleApiClient mGoogleApiClient;
     private double currentLat;
     private double currentLng;
     private LatLng focusPos;
+    private boolean googleState;
 
     // --------------------
     // CREATION
@@ -75,7 +79,8 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
         this.configureDrawerLayout();
         this.configureNavigationView();
         this.configureViewPagerAndTabs();
-        this.configureAPIandPosition();
+        this.configurePosition();
+        this.googleState = this.checkGooglePlayServices();
         this.showFirstFragment();
         Log.e("ACTIVITY", "onCreateOK");
     }
@@ -199,33 +204,6 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
         // - Design purpose. Tabs have the same width
     }
 
-    // - Configure API
-    @SuppressLint("MissingPermission")
-    private void configureAPIandPosition() {
-        this.mGoogleApiClient = new GoogleApiClient
-                .Builder(this)
-                .addApi(Places.GEO_DATA_API)
-                .addApi(Places.PLACE_DETECTION_API)
-                .enableAutoManage(this, this)
-                .build();
-
-        // - Check for permission
-        if (EasyPermissions.hasPermissions(this, PERMS2)) {
-            mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-            mFusedLocationClient.getLastLocation().addOnSuccessListener(this, new OnSuccessListener<Location>() {
-                @Override
-                public void onSuccess(Location location) {
-                    currentLat = location.getLatitude();
-                    currentLng = location.getLongitude();
-                    // Got last known location. In some rare situations this can be null.
-                    if (location != null) {
-                        // Logic to handle location object
-                    }
-                }
-            });
-        }
-    }
-
     // - Show first fragment
     private void showFirstFragment(){
         Fragment visibleFragment = getSupportFragmentManager().findFragmentById(R.id.activity_lunch_viewpager);
@@ -253,10 +231,6 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
 
     // - Search functionality for MapFragment
     private void searchForMaps(){
-        AutocompleteFilter typeFilter = new AutocompleteFilter.Builder()
-                .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ESTABLISHMENT)
-                .build();
-
         LatLngBounds latLngBounds = new LatLngBounds(
                 new LatLng(this.currentLat, this.currentLng),
                 new LatLng(this.currentLat, this.currentLng));
@@ -264,7 +238,6 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
         try {
             Intent intent =
                     new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY)
-                            .setFilter(typeFilter)
                             .setBoundsBias(latLngBounds)
                             .build(this);
             startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
@@ -290,6 +263,53 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
     // --------------------
     // UTILS
     // --------------------
+
+    // - Configure Position
+    @SuppressLint("MissingPermission")
+    private void configurePosition() {
+
+        // - Check for permission
+        if (EasyPermissions.hasPermissions(this, PERMS2)) {
+            mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+            mFusedLocationClient.getLastLocation().addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                @Override
+                public void onSuccess(Location location) {
+                    currentLat = location.getLatitude();
+                    currentLng = location.getLongitude();
+                    // Got last known location. In some rare situations this can be null.
+                    if (location != null) {
+                        // Logic to handle location object
+                    }
+                }
+            });
+        }
+    }
+
+    // - Test GooglePlayServices availability
+    private boolean checkGooglePlayServices() {
+        GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
+        int result = googleAPI.isGooglePlayServicesAvailable(this);
+        if(result != ConnectionResult.SUCCESS) {
+            if(googleAPI.isUserResolvableError(result)) {
+                googleAPI.getErrorDialog(this, result,
+                        0).show();
+            }
+            return false;
+        }
+        return true;
+    }
+
+    // - Configure API
+    public synchronized void buildGoogleApiClient(){
+        this.mGoogleApiClient = new GoogleApiClient
+                .Builder(this)
+                .addApi(Places.GEO_DATA_API)
+                .addApi(Places.PLACE_DETECTION_API)
+                .addApi(LocationServices.API)
+                .enableAutoManage(this, this)
+                .build();
+        this.mGoogleApiClient.connect();
+    }
 
     // --------------------
     // NAVIGATION
@@ -349,6 +369,12 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
     protected void onPause() {
         super.onPause();
         Log.e("ACTIVITY", "onPauseOK");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mGoogleApiClient.disconnect();
     }
 
     @Override

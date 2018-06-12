@@ -9,13 +9,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
 import com.denma.goforlunch.R;
-import com.google.android.gms.common.api.GoogleApiClient;
+
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import butterknife.ButterKnife;
-import icepick.Icepick;
 
 public abstract class BaseActivity extends AppCompatActivity {
 
@@ -28,7 +27,6 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected static final int RC_LOCATION_PERMS2 = 200;
 
     // FOR DATA
-    protected GoogleApiClient mGoogleApiClient;
 
     // --------------------
     // CREATION
@@ -37,7 +35,6 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Icepick.restoreInstanceState(this, savedInstanceState);
         this.setContentView(this.getActivityLayout());
         ButterKnife.bind(this); //Configure Butterknife
     }
@@ -93,10 +90,4 @@ public abstract class BaseActivity extends AppCompatActivity {
     // LIFE CYCLE
     // --------------------
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        // - Save all @State annotation variables in Bundle
-        Icepick.saveInstanceState(this, outState);
-    }
 }

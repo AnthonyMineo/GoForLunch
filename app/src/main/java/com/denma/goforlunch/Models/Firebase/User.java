@@ -1,4 +1,4 @@
-package com.denma.goforlunch.Models;
+package com.denma.goforlunch.Models.Firebase;
 
 import android.support.annotation.Nullable;
 

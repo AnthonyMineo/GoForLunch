@@ -2,7 +2,7 @@ package com.denma.goforlunch.Controllers;
 
 /*
         A simple structure that each Controller's class should respect inside this project,
-        in order to maintain an readable and comprehensive code.
+        in order to maintain a readable and comprehensive code.
  */
 
 public class Example {

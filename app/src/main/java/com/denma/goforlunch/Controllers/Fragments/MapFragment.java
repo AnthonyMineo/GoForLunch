@@ -13,20 +13,28 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.denma.goforlunch.Controllers.Activities.LunchActivity;
+import com.denma.goforlunch.Models.GoogleAPI.Response;
 import com.denma.goforlunch.R;
 
+import com.denma.goforlunch.Utils.GoogleMapsStream;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import io.reactivex.disposables.Disposable;
+import io.reactivex.observers.DisposableObserver;
 import pub.devrel.easypermissions.EasyPermissions;
 
 
@@ -42,7 +50,11 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
     // FOR DATA
     private LatLng currentPosition;
     private LatLng focusPosition;
+    private double currentLat;
+    private double currentLng;
     private LunchActivity mLunchActivity;
+    private Disposable disposable;
+    private static final int PROXIMITY_RADIUS = 1000;
 
     // --------------------
     // CREATION
@@ -91,6 +103,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
     @Override
     public void onMapReady(GoogleMap googleMap) {
         this.mMap = googleMap;
+        mLunchActivity.buildGoogleApiClient();
         Log.e("FRAGMENT", "onMapReadyOK");
         this.mMap.setOnMyLocationButtonClickListener(this);
         this.mMap.setOnMyLocationClickListener(this);
@@ -110,9 +123,13 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
         }
 
         // - Change camera to currentPosition
-        this.currentPosition = new LatLng(mLunchActivity.getCurrentLat(), mLunchActivity.getCurrentLng());
+        this.currentLat = mLunchActivity.getCurrentLat();
+        this.currentLng = mLunchActivity.getCurrentLng();
+        this.currentPosition = new LatLng(currentLat, currentLng);
         changeFocusPosition(currentPosition);
 
+        // - Display nearby restaurant marker
+        executeHttpRequestWithRetrofit();
     }
 
     @Override
@@ -138,6 +155,58 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
     // --------------------
     // UTILS
     // --------------------
+
+    //- Execute our Stream
+    private void executeHttpRequestWithRetrofit(){
+        // - Execute the stream subscribing to Observable defined inside NYTStream
+        this.disposable = GoogleMapsStream.streamFetchNearbyPlaces("restaurant", currentLat + "," + currentLng, PROXIMITY_RADIUS).subscribeWith(new DisposableObserver<Response>() {
+            @Override
+            public void onNext(Response response) {
+                Log.e("TAG","On Next");
+                // - Update UI with response
+                updateMapUI(response);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Log.e("TAG","On Error "+ e.getMessage());
+
+            }
+
+            @Override
+            public void onComplete() {
+                Log.e("TAG","On Complete !!");
+            }
+        });
+    }
+
+    private void disposeWhenDestroy(){
+        if (this.disposable != null && !this.disposable.isDisposed()) this.disposable.dispose();
+    }
+
+    private void updateMapUI(Response response){
+        mMap.clear();
+        // This loop will go through all the results and add marker on each location.
+        for (int i = 0; i < response.getResults().size(); i++) {
+            Double lat = response.getResults().get(i).getGeometry().getLocation().getLat();
+            Double lng = response.getResults().get(i).getGeometry().getLocation().getLng();
+            String placeName = response.getResults().get(i).getName();
+            String vicinity = response.getResults().get(i).getVicinity();
+            MarkerOptions markerOptions = new MarkerOptions();
+            LatLng latLng = new LatLng(lat, lng);
+            // Position of Marker on Map
+            markerOptions.position(latLng);
+            // Adding Title to the Marker
+            markerOptions.title(placeName + " : " + vicinity);
+            // Adding Marker to the Camera.
+            Marker m = mMap.addMarker(markerOptions);
+            // Adding colour to the marker
+            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+            Log.e("TAG", "Update done !");
+        }
+
+        Log.e("TAG", String.valueOf(response.getResults().size()));
+    }
 
     // --------------------
     // NAVIGATION
@@ -193,6 +262,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
         }
         Log.e("FRAGMENT", "onDestroyOK");
         super.onDestroy();
+        this.disposeWhenDestroy();
     }
 
     @Override

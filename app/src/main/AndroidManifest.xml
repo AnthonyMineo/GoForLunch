@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES"/>
 
 
     <application
@@ -34,10 +35,10 @@
                 android:value=".Controllers.Activities.MainActivity" />
         </activity>
 
-        <!-- Google API Key / Android restriction -->
+        <!-- Google MapsAPI Key / Android restriction -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="@string/google_api_key"/>
+            android:value="@string/key_maps_sdk"/>
 
     </application>
 

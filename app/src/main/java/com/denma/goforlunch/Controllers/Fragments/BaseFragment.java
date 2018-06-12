@@ -8,8 +8,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+
 import butterknife.ButterKnife;
-import icepick.Icepick;
 
 public abstract class BaseFragment extends Fragment {
 
@@ -27,7 +27,6 @@ public abstract class BaseFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(this.getFragmentLayout(), container, false);
-        Icepick.restoreInstanceState(this, savedInstanceState);
         ButterKnife.bind(this, view); //Configure Butterknife
         return view;
     }
@@ -65,19 +64,5 @@ public abstract class BaseFragment extends Fragment {
     // --------------------
     // LIFE CYCLE
     // --------------------
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        // - Save all @State annotation variables in Bundle
-        Icepick.saveInstanceState(this, outState);
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        // - Restore all @State annotation variables in Bundle
-        Icepick.restoreInstanceState(this, savedInstanceState);
-    }
 
 }

@@ -1,7 +1,7 @@
 package com.denma.goforlunch.Utils;
 
 import com.google.android.gms.tasks.Task;
-import com.denma.goforlunch.Models.User;
+import com.denma.goforlunch.Models.Firebase.User;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
