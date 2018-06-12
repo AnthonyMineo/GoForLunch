@@ -9,3 +9,4 @@
 /captures
 .externalNativeBuild
 /app/src/main/res/values/key.xml
+/app/src/main/java/com.denma.goforlunch/Utils/GoogleMapsService.java
