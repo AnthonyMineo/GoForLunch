@@ -21,7 +21,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.denma.goforlunch.Controllers.Fragments.CoWorkerListFragment;
+import com.denma.goforlunch.Controllers.Fragments.RestaurantsListFragment;
+import com.denma.goforlunch.Models.GoogleAPI.Response;
 import com.denma.goforlunch.R;
+import com.denma.goforlunch.Utils.GoogleMapsStream;
 import com.denma.goforlunch.Views.PageAdapter;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -33,7 +37,6 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.Place;
 
 import com.google.android.gms.location.places.Places;
@@ -44,6 +47,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import io.reactivex.disposables.Disposable;
+import io.reactivex.observers.DisposableObserver;
 import pub.devrel.easypermissions.EasyPermissions;
 
 
@@ -56,17 +61,22 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
     private TabLayout tabs;
     private ViewPager pager;
     private MapFragment mMapFragment;
+    private RestaurantsListFragment mRestaurantsListFragment;
+    private CoWorkerListFragment mCoWorkerListFragment;
 
     // FOR PERMISSIONS
 
     // FOR DATA
     private static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
+    private static final int PROXIMITY_RADIUS = 1000;
     private FusedLocationProviderClient mFusedLocationClient;
     private GoogleApiClient mGoogleApiClient;
     private double currentLat;
     private double currentLng;
     private LatLng focusPos;
     private boolean googleState;
+    private Disposable disposable;
+    public Response mResponse;
 
     // --------------------
     // CREATION
@@ -75,13 +85,9 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.configureToolBar();
-        this.configureDrawerLayout();
-        this.configureNavigationView();
-        this.configureViewPagerAndTabs();
-        this.configurePosition();
-        this.googleState = this.checkGooglePlayServices();
-        this.showFirstFragment();
+        googleState = checkGooglePlayServices();
+        buildGoogleApiClient();
+        configurePosition();
         Log.e("ACTIVITY", "onCreateOK");
     }
 
@@ -173,13 +179,13 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
 
     // - Configure Toolbar
     private void configureToolBar() {
-        this.toolbar = (Toolbar) findViewById(R.id.toolbar);
+        this.toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
     }
 
     // - Configure Drawer Layout
     private void configureDrawerLayout() {
-        this.drawerLayout = (DrawerLayout) findViewById(R.id.activity_lunch_drawer_layout);
+        this.drawerLayout = findViewById(R.id.activity_lunch_drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
@@ -187,21 +193,42 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
 
     // - Configure NavigationView
     private void configureNavigationView() {
-        this.navigationView = (NavigationView) findViewById(R.id.activity_lunch_nav_view);
+        this.navigationView = findViewById(R.id.activity_lunch_nav_view);
         navigationView.setNavigationItemSelectedListener(this);
     }
 
     // - Configure ViewPager and TabLayout
     private void configureViewPagerAndTabs() {
         // - Get ViewPager from layout
-        pager = (ViewPager) findViewById(R.id.activity_lunch_viewpager);
+        pager = findViewById(R.id.activity_lunch_viewpager);
         // - Set Adapter PageAdapter and glue it together
         pager.setAdapter(new PageAdapter(getSupportFragmentManager(), this));
         // - Get TabLayout from layout
-        tabs = (TabLayout) findViewById(R.id.activity_lunch_tabs);
+        tabs = findViewById(R.id.activity_lunch_tabs);
         // - Glue TabLayout and ViewPager together
         tabs.setupWithViewPager(pager);
         // - Design purpose. Tabs have the same width
+        tabs.setTabMode(TabLayout.MODE_FIXED);
+        pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                if(position == 1){
+                    // - Not sur if this work for the moment
+                    // - We need to do something like this because the middle fragment is not re-created when switching between 3 views
+                    RestaurantsListFragment.mRestaurantAdapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
     }
 
     // - Show first fragment
@@ -210,6 +237,7 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
         if (visibleFragment == null){
             // - Show MapFragment
             this.showMapFragment();
+            pager.setCurrentItem(0);
         }
     }
 
@@ -276,6 +304,7 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
                 public void onSuccess(Location location) {
                     currentLat = location.getLatitude();
                     currentLng = location.getLongitude();
+                    executeHttpRequestWithRetrofit_NearbyPlaces();
                     // Got last known location. In some rare situations this can be null.
                     if (location != null) {
                         // Logic to handle location object
@@ -311,13 +340,46 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
         this.mGoogleApiClient.connect();
     }
 
+    //- Execute our Stream
+    protected void executeHttpRequestWithRetrofit_NearbyPlaces(){
+        // - Execute the stream subscribing to Observable defined inside GoogleMapsStream
+        this.disposable = GoogleMapsStream.streamFetchNearbyPlaces("restaurant", currentLat + "," + currentLng, PROXIMITY_RADIUS).subscribeWith(new DisposableObserver<Response>() {
+            @Override
+            public void onNext(Response response) {
+                Log.e("ACTIVITY","On Next");
+                // - Update UI with response
+                mResponse = response;
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Log.e("ACTIVITY","On Error "+ e.getMessage());
+
+            }
+
+            @Override
+            public void onComplete() {
+                Log.e("ACTIVITY","On Complete !!");
+                configureToolBar();
+                configureDrawerLayout();
+                configureNavigationView();
+                configureViewPagerAndTabs();
+                showFirstFragment();
+            }
+        });
+    }
+
+    private void disposeWhenDestroy(){
+        if (this.disposable != null && !this.disposable.isDisposed()) this.disposable.dispose();
+    }
+
     // --------------------
     // NAVIGATION
     // --------------------
 
     private void showMapFragment(){
-        if (this.mMapFragment == null) this.mMapFragment = mMapFragment.newInstance();
-        pager.setCurrentItem(0);
+        if(this.mMapFragment == null) this.mMapFragment = MapFragment.newInstance();
     }
 
     // --------------------
@@ -375,6 +437,7 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
     protected void onDestroy() {
         super.onDestroy();
         mGoogleApiClient.disconnect();
+        this.disposeWhenDestroy();
     }
 
     @Override

@@ -5,9 +5,9 @@
     android:layout_height="match_parent"
     tools:context=".Controllers.Fragments.CoWorkerListFragment">
 
-    <TextView
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/fragment_co_worker_list_recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="Co Worker List" />
+        android:layout_height="match_parent" />
 
 </FrameLayout>

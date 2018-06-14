@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RelativeLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="10dp">
+
+            <TextView
+                android:id="@+id/fragment_recycle_item_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxWidth="200dp"
+                android:text="name"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentLeft="true"/>
+
+            <TextView
+                android:id="@+id/fragment_recycle_item_distance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="120m"
+                android:textSize="14sp"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentRight="true" />
+
+            <TextView
+                android:id="@+id/fragment_recycle_item_location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="13sp"
+                android:text="4 rue des pinsons"
+                android:layout_alignParentLeft="true"
+                android:layout_below="@id/fragment_recycle_item_name" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_below="@id/fragment_recycle_item_name" >
+
+                <ImageView
+                    android:id="@+id/fragment_recycle_item_mate_ic"
+                    android:src="@drawable/baseline_perm_identity_black_48"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp" />
+
+                <TextView
+                    android:id="@+id/fragment_recycle_item_mate_number"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="13sp"
+                    android:text="(3)" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/fragment_recycle_item_openning_hours"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:text="Open until 7 pm"
+                android:layout_alignParentLeft="true"
+                android:layout_below="@id/fragment_recycle_item_location" />
+
+
+            <ImageView
+                android:id="@+id/fragment_recycle_item_rank"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_alignParentRight="true"
+                android:layout_below="@id/fragment_recycle_item_location" />
+
+        </RelativeLayout>
+
+        <ImageView
+            android:id="@+id/fragment_recycle_item_restaurant_image"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_gravity="center"
+            android:src="@drawable/baseline_perm_identity_black_48" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginLeft="5dp"
+        android:background="@android:color/darker_gray" >
+    </FrameLayout>
+
+</LinearLayout>
+
+
