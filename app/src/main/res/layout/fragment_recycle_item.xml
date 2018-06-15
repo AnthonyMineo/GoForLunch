@@ -40,6 +40,7 @@
                 android:id="@+id/fragment_recycle_item_location"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:maxWidth="200dp"
                 android:textSize="13sp"
                 android:text="4 rue des pinsons"
                 android:layout_alignParentLeft="true"
@@ -88,6 +89,7 @@
             android:id="@+id/fragment_recycle_item_restaurant_image"
             android:layout_width="70dp"
             android:layout_height="70dp"
+            android:layout_margin="5dp"
             android:layout_gravity="center"
             android:src="@drawable/baseline_perm_identity_black_48" />
     </LinearLayout>

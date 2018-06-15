@@ -43,7 +43,7 @@ public abstract class BaseFragment extends Fragment {
         this.mLunchActivity = (LunchActivity) getActivity();
         this.currentLat = mLunchActivity.getCurrentLat();
         this.currentLng = mLunchActivity.getCurrentLng();
-        this.mResponse = mLunchActivity.mResponse;
+        this.mResponse = mLunchActivity.getResponse();
         return view;
     }
 

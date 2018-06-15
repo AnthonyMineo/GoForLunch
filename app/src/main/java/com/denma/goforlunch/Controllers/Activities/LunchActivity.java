@@ -23,6 +23,7 @@ import android.widget.Toast;
 
 import com.denma.goforlunch.Controllers.Fragments.CoWorkerListFragment;
 import com.denma.goforlunch.Controllers.Fragments.RestaurantsListFragment;
+import com.denma.goforlunch.Models.GoogleAPI.Photo;
 import com.denma.goforlunch.Models.GoogleAPI.Response;
 import com.denma.goforlunch.R;
 import com.denma.goforlunch.Utils.GoogleMapsStream;
@@ -76,7 +77,7 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
     private LatLng focusPos;
     private boolean googleState;
     private Disposable disposable;
-    public Response mResponse;
+    private Response mResponse;
 
     // --------------------
     // CREATION
@@ -110,6 +111,10 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
 
     public LatLng getFocusPos() {
         return focusPos;
+    }
+
+    public Response getResponse(){
+        return mResponse;
     }
 
     // --------------------
@@ -369,6 +374,7 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
             }
         });
     }
+
 
     private void disposeWhenDestroy(){
         if (this.disposable != null && !this.disposable.isDisposed()) this.disposable.dispose();

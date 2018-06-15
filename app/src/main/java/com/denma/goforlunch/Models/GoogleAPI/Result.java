@@ -47,7 +47,7 @@ public class Result {
     @SerializedName("price_level")
     @Expose
     private Integer priceLevel;
-    private MainImage mainImage;
+    private String imageUrl;
 
 
     public Geometry getGeometry() {
@@ -154,13 +154,10 @@ public class Result {
         this.priceLevel = priceLevel;
     }
 
-    public MainImage getMainImage() {
-        return mainImage;
+    public String getImageUrl() {
+        return imageUrl;
     }
 
-    public void setMainImage(MainImage mainImage) {
-        this.mainImage = mainImage;
-    }
-
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 
 }
