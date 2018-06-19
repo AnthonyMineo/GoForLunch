@@ -4,7 +4,6 @@ import android.Manifest;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,11 +11,9 @@ import android.view.ViewGroup;
 
 import com.denma.goforlunch.Controllers.Activities.LunchActivity;
 import com.denma.goforlunch.Models.GoogleAPI.Response;
-import com.denma.goforlunch.Utils.GoogleMapsStream;
 
 import butterknife.ButterKnife;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.observers.DisposableObserver;
+
 
 public abstract class BaseFragment extends Fragment {
 
@@ -65,7 +62,7 @@ public abstract class BaseFragment extends Fragment {
     // ACTIONS
     // --------------------
 
-    protected abstract void updateUI(Response response);
+    public abstract void updateUI(Response response);
 
     // --------------------
     // UTILS
@@ -83,9 +80,4 @@ public abstract class BaseFragment extends Fragment {
     // --------------------
     // LIFE CYCLE
     // --------------------
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-    }
 }

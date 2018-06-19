@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.denma.goforlunch.Controllers.Activities.LunchActivity;
+
 import com.denma.goforlunch.Models.GoogleAPI.Response;
 import com.denma.goforlunch.Models.GoogleAPI.Result;
 import com.denma.goforlunch.R;
@@ -35,6 +35,7 @@ public class RestaurantsListFragment extends BaseFragment {
     // FOR PERMISSIONS
 
     // FOR DATA
+    private static final String TAG = "RestaurantList_Fragment"; // - RestaurantsList Fragment ID for log
     private List<Result> mRestaurants;
     public static RestaurantAdapter mRestaurantAdapter;
 
@@ -49,7 +50,7 @@ public class RestaurantsListFragment extends BaseFragment {
         this.configureRecyclerView();
         this.configureOnClickRecyclerView();
         updateUI(mResponse);
-        Log.e("RESTAURANT", "onCreateOK");
+        Log.e(TAG, "onCreate");
         return view;
     }
 
@@ -102,16 +103,13 @@ public class RestaurantsListFragment extends BaseFragment {
     }
 
     @Override
-    protected void updateUI(Response response) {
+    public void updateUI(Response response) {
         // This loop will go through all the results and add marker on each location.
-        for (int i = 0; i < response.getResults().size(); i++) {
-
-            Log.e("RESTAURANT", "Update done !");
-        }
-        Log.e("RESTAURANT", String.valueOf(response.getResults().size()));
+        for (int i = 0; i < response.getResults().size(); i++) { }
         mRestaurants.clear();
         mRestaurants.addAll(response.getResults());
         mRestaurantAdapter.notifyDataSetChanged();
+        Log.e(TAG, "Update done ! " + String.valueOf(response.getResults().size()));
     }
 
     // --------------------
@@ -133,20 +131,19 @@ public class RestaurantsListFragment extends BaseFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.e("RESTAURANT", "onCreateOK");
+        Log.e(TAG, "onDestroy");
     }
 
-    // Docs suggest to override them
     @Override
     public void onResume() {
         super.onResume();
-        Log.e("RESTAURANT", "onCreateOK");
+        Log.e(TAG, "onResume");
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        Log.e("RESTAURANT", "onCreateOK");
+        Log.e(TAG, "onPause");
     }
 
 }

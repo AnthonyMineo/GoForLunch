@@ -2,7 +2,7 @@ package com.denma.goforlunch.Views;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
+
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -57,9 +57,5 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
         else {
             restImage.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_place_image_not_found));
         }
-
-
-
-
     }
 }

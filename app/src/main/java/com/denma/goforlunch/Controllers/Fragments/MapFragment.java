@@ -13,9 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
-import com.denma.goforlunch.Controllers.Activities.LunchActivity;
 import com.denma.goforlunch.Models.GoogleAPI.Response;
 import com.denma.goforlunch.R;
 
@@ -43,6 +41,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
     // FOR PERMISSIONS
 
     // FOR DATA
+    private static final String TAG = "Map_Fragment"; // - Map Fragment ID for log
     private LatLng currentPosition;
     private LatLng focusPosition;
 
@@ -55,7 +54,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
         View view = super.onCreateView(inflater, container, savedInstanceState);
         mMapView.onCreate(savedInstanceState);
         mMapView.getMapAsync(this);
-        Log.e("MAP", "onCreateOK");
+        Log.e(TAG, "onCreate");
         return view;
     }
 
@@ -91,7 +90,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
     public void onMapReady(GoogleMap googleMap) {
         this.mMap = googleMap;
 
-        Log.e("MAP", "onMapReadyOK");
+        Log.e(TAG, "onMapReady");
         this.mMap.setOnMyLocationButtonClickListener(this);
         this.mMap.setOnMyLocationClickListener(this);
 
@@ -135,14 +134,13 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
 
     // - Change the Camera position on the map to the given LatLng
     public void changeFocusPosition(LatLng latLng){
-        Log.e("MAP", "CameraUpdate");
-        CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng,
-                16);
+        Log.e(TAG, "CameraUpdate");
+        CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng,16);
         this.mMap.animateCamera(update);
     }
 
     @Override
-    protected void updateUI(Response response) {
+    public void updateUI(Response response) {
         mMap.clear();
         // This loop will go through all the results and add marker on each location.
         for (int i = 0; i < response.getResults().size(); i++) {
@@ -161,10 +159,8 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
             Marker m = mMap.addMarker(markerOptions);
             // Adding colour to the marker
             markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-            Log.e("MAP", "Update done !");
         }
-
-        Log.e("MAP", String.valueOf(response.getResults().size()));
+        Log.e(TAG, "Update done ! " + String.valueOf(response.getResults().size()));
     }
 
     // --------------------
@@ -197,11 +193,10 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
         if (mMapView != null) {
             mMapView.onResume();
         }
-        Log.e("MAP", "onResumeOK");
+        Log.e(TAG, "onResume");
         // - Allow us to handle user's selection from Place autocomplete
         if(mLunchActivity.getFocusPos() != null)
             changeFocusPosition(mLunchActivity.getFocusPos());
-        Log.e("BBBBBBBBBBBBB", "Focus OK");
     }
 
     @Override
@@ -209,13 +204,14 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
         if (mMapView != null) {
             mMapView.onPause();
         }
-        Log.e("MAP", "onPauseOK");
+        Log.e(TAG, "onPause");
         super.onPause();
 
     }
 
     @Override
     public void onDestroy() {
+        super.onDestroy();
         if (mMapView != null) {
             try {
                 mMapView.onDestroy();
@@ -223,8 +219,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
                 Log.e("Error","Error while attempting MapView.onDestroy(), ignoring exception", e);
             }
         }
-        Log.e("MAP", "onDestroyOK");
-        super.onDestroy();
+        Log.e(TAG, "onDestroy");
     }
 
     @Override
@@ -233,7 +228,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
         if (mMapView != null) {
             mMapView.onLowMemory();
         }
-        Log.e("MAP", "onLowMemoryOK");
+        Log.e(TAG, "onLowMemory");
     }
 
 }

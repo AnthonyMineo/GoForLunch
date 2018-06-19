@@ -1,16 +1,19 @@
 package com.denma.goforlunch.Controllers.Activities;
 
-import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 
+import android.content.IntentFilter;
 import android.location.Location;
-import android.support.annotation.NonNull;
+
 import android.support.annotation.Nullable;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
@@ -23,10 +26,10 @@ import android.widget.Toast;
 
 import com.denma.goforlunch.Controllers.Fragments.CoWorkerListFragment;
 import com.denma.goforlunch.Controllers.Fragments.RestaurantsListFragment;
-import com.denma.goforlunch.Models.GoogleAPI.Photo;
 import com.denma.goforlunch.Models.GoogleAPI.Response;
 import com.denma.goforlunch.R;
 import com.denma.goforlunch.Utils.GoogleMapsStream;
+import com.denma.goforlunch.Utils.LocationService;
 import com.denma.goforlunch.Views.PageAdapter;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -34,32 +37,29 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Status;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
+
 import com.google.android.gms.location.places.Place;
 
-import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 
 import com.denma.goforlunch.Controllers.Fragments.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.tasks.OnSuccessListener;
 
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
-import pub.devrel.easypermissions.EasyPermissions;
 
 
-public class LunchActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener, GoogleApiClient.OnConnectionFailedListener {
+
+public class LunchActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     // FOR DESIGN
     private Toolbar toolbar;
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private TabLayout tabs;
+    private PageAdapter myPagerAdapter;
     private ViewPager pager;
     private MapFragment mMapFragment;
     private RestaurantsListFragment mRestaurantsListFragment;
@@ -68,14 +68,15 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
     // FOR PERMISSIONS
 
     // FOR DATA
+    private static final String TAG = "Lunch_Activity"; // - Activity ID for log
     private static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
     private static final int PROXIMITY_RADIUS = 1000;
-    private FusedLocationProviderClient mFusedLocationClient;
-    private GoogleApiClient mGoogleApiClient;
     private double currentLat;
     private double currentLng;
+    private Location currentLocation;
     private LatLng focusPos;
-    private boolean googleState;
+    private boolean mServiceState;
+    private boolean mInitUI;
     private Disposable disposable;
     private Response mResponse;
 
@@ -86,10 +87,10 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        googleState = checkGooglePlayServices();
-        buildGoogleApiClient();
-        configurePosition();
-        Log.e("ACTIVITY", "onCreateOK");
+        this.mInitUI = false;
+        this.configureBroadcastReceiver();
+        this.configureLocationService();
+        Log.e(TAG, "onCreate");
     }
 
     // --------------------
@@ -206,33 +207,35 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
     private void configureViewPagerAndTabs() {
         // - Get ViewPager from layout
         pager = findViewById(R.id.activity_lunch_viewpager);
+        myPagerAdapter = new PageAdapter(getSupportFragmentManager());
         // - Set Adapter PageAdapter and glue it together
-        pager.setAdapter(new PageAdapter(getSupportFragmentManager(), this));
+        pager.setAdapter(myPagerAdapter);
         // - Get TabLayout from layout
         tabs = findViewById(R.id.activity_lunch_tabs);
         // - Glue TabLayout and ViewPager together
         tabs.setupWithViewPager(pager);
         // - Design purpose. Tabs have the same width
         tabs.setTabMode(TabLayout.MODE_FIXED);
+
+        // - Fragment init
+        mMapFragment = (MapFragment) myPagerAdapter.getFragment(0);
+        mRestaurantsListFragment = (RestaurantsListFragment) myPagerAdapter.getFragment(1);
+        mCoWorkerListFragment = (CoWorkerListFragment) myPagerAdapter.getFragment(2);
+
         pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-            }
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) { }
 
             @Override
             public void onPageSelected(int position) {
                 if(position == 1){
-                    // - Not sur if this work for the moment
                     // - We need to do something like this because the middle fragment is not re-created when switching between 3 views
-                    RestaurantsListFragment.mRestaurantAdapter.notifyDataSetChanged();
+                    mRestaurantsListFragment.updateUI(mResponse);
                 }
             }
 
             @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
+            public void onPageScrollStateChanged(int state) { }
         });
     }
 
@@ -264,10 +267,12 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
 
     // - Search functionality for MapFragment
     private void searchForMaps(){
+        // - Set Bounds to suggest relevant place in the overlay
         LatLngBounds latLngBounds = new LatLngBounds(
                 new LatLng(this.currentLat, this.currentLng),
                 new LatLng(this.currentLat, this.currentLng));
 
+        // - Place Auto Complete Activity
         try {
             Intent intent =
                     new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY)
@@ -285,37 +290,41 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
 
     // - Search functionality for RestaurantsListFragment
     private void searchForRestaurants(){
-        Toast.makeText(this, "Restaurants", Toast.LENGTH_SHORT);
+        Toast.makeText(this, "Restaurants", Toast.LENGTH_SHORT).show();
     }
 
     // - Search functionality for CoWorkerListFragment
     private void searchForCoWorker(){
-        Toast.makeText(this, "CoWorker", Toast.LENGTH_SHORT);
+        Toast.makeText(this, "CoWorker", Toast.LENGTH_SHORT).show();
     }
 
     // --------------------
     // UTILS
     // --------------------
 
-    // - Configure Position
-    @SuppressLint("MissingPermission")
-    private void configurePosition() {
-
-        // - Check for permission
-        if (EasyPermissions.hasPermissions(this, PERMS2)) {
-            mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-            mFusedLocationClient.getLastLocation().addOnSuccessListener(this, new OnSuccessListener<Location>() {
-                @Override
-                public void onSuccess(Location location) {
-                    currentLat = location.getLatitude();
-                    currentLng = location.getLongitude();
-                    executeHttpRequestWithRetrofit_NearbyPlaces();
-                    // Got last known location. In some rare situations this can be null.
-                    if (location != null) {
-                        // Logic to handle location object
+    // - Configure BroadcastReceiver
+    private void configureBroadcastReceiver(){
+        // - Identify the service broadcast with the intentFilter
+        LocalBroadcastManager.getInstance(this).registerReceiver(
+                new BroadcastReceiver() {
+                    @Override
+                    public void onReceive(Context context, Intent intent) {
+                        // - Update local variables relation to current location
+                        currentLat = intent.getDoubleExtra(LocationService.EXTRA_LATITUDE, 0);
+                        currentLng = intent.getDoubleExtra(LocationService.EXTRA_LONGITUDE, 0);
+                        // - Call our search for NearbyPlaces
+                        executeHttpRequestWithRetrofit_NearbyPlaces();
                     }
-                }
-            });
+                }, new IntentFilter(LocationService.ACTION_LOCATION_BROADCAST));
+    }
+
+    private void configureLocationService(){
+        if(checkGooglePlayServices() && !mServiceState){
+            // - Start location Service
+            Intent intent = new Intent(this, LocationService.class);
+            startService(intent);
+            // - Service is active now !
+            mServiceState = true;
         }
     }
 
@@ -333,48 +342,47 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
         return true;
     }
 
-    // - Configure API
-    public synchronized void buildGoogleApiClient(){
-        this.mGoogleApiClient = new GoogleApiClient
-                .Builder(this)
-                .addApi(Places.GEO_DATA_API)
-                .addApi(Places.PLACE_DETECTION_API)
-                .addApi(LocationServices.API)
-                .enableAutoManage(this, this)
-                .build();
-        this.mGoogleApiClient.connect();
-    }
-
     //- Execute our Stream
     protected void executeHttpRequestWithRetrofit_NearbyPlaces(){
         // - Execute the stream subscribing to Observable defined inside GoogleMapsStream
         this.disposable = GoogleMapsStream.streamFetchNearbyPlaces("restaurant", currentLat + "," + currentLng, PROXIMITY_RADIUS).subscribeWith(new DisposableObserver<Response>() {
             @Override
             public void onNext(Response response) {
-                Log.e("ACTIVITY","On Next");
-                // - Update UI with response
+                Log.e(TAG,"NearbyPlaces On Next");
+                // - Update local Response
                 mResponse = response;
-
             }
 
             @Override
             public void onError(Throwable e) {
-                Log.e("ACTIVITY","On Error "+ e.getMessage());
-
+                Log.e(TAG,"NearbyPlaces On Error "+ e.getMessage());
             }
 
             @Override
             public void onComplete() {
-                Log.e("ACTIVITY","On Complete !!");
-                configureToolBar();
-                configureDrawerLayout();
-                configureNavigationView();
-                configureViewPagerAndTabs();
-                showFirstFragment();
+                Log.e(TAG,"NearbyPlaces On Complete !!");
+                // - If UI method are not already call, then call them
+                if (mInitUI == false){
+                    ConfigureActivityUI();
+                } else {
+                    // - Else update the UI of fragment using Response from Google Place API
+                    mMapFragment.updateUI(mResponse);
+                    mRestaurantsListFragment.updateUI(mResponse);
+                }
             }
         });
     }
 
+    // - Configure Activity UI and show the mapFragment first
+    private void ConfigureActivityUI(){
+        this.configureToolBar();
+        this.configureDrawerLayout();
+        this.configureNavigationView();
+        this.configureViewPagerAndTabs();
+        this.showFirstFragment();
+        // - UI is configure now
+        this.mInitUI = true;
+    }
 
     private void disposeWhenDestroy(){
         if (this.disposable != null && !this.disposable.isDisposed()) this.disposable.dispose();
@@ -392,22 +400,18 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
     // ERROR HANDLER
     // --------------------
 
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Toast.makeText(this, "Impossible de se connecter aus APIs Google", Toast.LENGTH_SHORT);
-    }
-
     // --------------------
     // LIFE CYCLE
     // --------------------
 
+    // - Handle the result of Place auto complete activity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
+                // - Get the LatLng from the user's selected place and update the focusPos variable
                 Place place = PlaceAutocomplete.getPlace(this, data);
-                Log.i("Info", "Place: " + place.getName() + " " + place.getLatLng().toString());
                 this.focusPos = place.getLatLng();
 
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
@@ -416,7 +420,7 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
                 Log.i("Info", status.getStatusMessage());
 
             } else if (resultCode == RESULT_CANCELED) {
-                // The user canceled the operation.
+                // - The user canceled the operation.
             }
         }
     }
@@ -424,40 +428,41 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
     @Override
     protected void onStart() {
         super.onStart();
-        Log.e("ACTIVITY", "onStartOK");
+        Log.e(TAG, "onStart");
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        Log.e("ACTIVITY", "onStopOK");
+        Log.e(TAG, "onStop");
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        Log.e("ACTIVITY", "onPauseOK");
+        Log.e(TAG, "onPause");
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mGoogleApiClient.disconnect();
+        Log.e(TAG, "onDestroy");
         this.disposeWhenDestroy();
+        // - Stop the location service
+        stopService(new Intent(this, LocationService.class));
+        // - Service is off now
+        mServiceState = false;
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        Log.e("ACTIVITY", "onResumeOK");
-        if(focusPos !=null){
-            Log.e("CCCCCCCCCC", focusPos.toString());
-        }
+        Log.e(TAG, "onResume");
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
-        Log.e("ACTIVITY", "onRestartOK");
+        Log.e(TAG, "onRestart");
     }
 }

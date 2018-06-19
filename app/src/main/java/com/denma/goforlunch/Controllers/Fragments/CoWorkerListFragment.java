@@ -1,11 +1,7 @@
 package com.denma.goforlunch.Controllers.Fragments;
 
 
-import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 import com.denma.goforlunch.Models.GoogleAPI.Response;
 import com.denma.goforlunch.R;
@@ -18,6 +14,7 @@ public class CoWorkerListFragment extends BaseFragment {
     // FOR PERMISSIONS
 
     // FOR DATA
+    private static final String TAG = "CoWorker_Fragment"; // - CoWorker Fragment ID for log
 
     // --------------------
     // CREATION
@@ -47,7 +44,7 @@ public class CoWorkerListFragment extends BaseFragment {
     // --------------------
 
     @Override
-    protected void updateUI(Response response) {
+    public void updateUI(Response response) {
 
     }
 
@@ -70,20 +67,20 @@ public class CoWorkerListFragment extends BaseFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.e("COWORKER", "onCreateOK");
+        Log.e(TAG, "onDestroy");
     }
 
     // Docs suggest to override them
     @Override
     public void onResume() {
         super.onResume();
-        Log.e("COWORKER", "onCreateOK");
+        Log.e(TAG, "onResume");
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        Log.e("COWORKER", "onCreateOK");
+        Log.e(TAG, "onPause");
     }
 
 }

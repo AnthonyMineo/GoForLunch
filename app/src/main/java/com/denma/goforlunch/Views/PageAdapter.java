@@ -1,22 +1,24 @@
 package com.denma.goforlunch.Views;
 
-import android.content.Context;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.util.SparseArray;
+import android.view.ViewGroup;
 
 import com.denma.goforlunch.Controllers.Fragments.CoWorkerListFragment;
 import com.denma.goforlunch.Controllers.Fragments.MapFragment;
 import com.denma.goforlunch.Controllers.Fragments.RestaurantsListFragment;
 
-public class PageAdapter extends FragmentPagerAdapter {
 
-    Context context;
+public class PageAdapter extends FragmentStatePagerAdapter {
+    // - A SparseArray that will contain our fragment
+    private final SparseArray<Fragment> instantiatedFragments = new SparseArray<>();
 
-    //Constructor
-    public PageAdapter(FragmentManager mgr, Context mContext) {
+    // - Constructor
+    public PageAdapter(FragmentManager mgr) {
         super(mgr);
-        this.context = mContext;
     }
 
     @Override
@@ -50,5 +52,27 @@ public class PageAdapter extends FragmentPagerAdapter {
             default:
                 return null;
         }
+    }
+
+    // - Store the fragment instance to the SparseArray
+    @Override
+    public Object instantiateItem(final ViewGroup container, final int position) {
+        final Fragment fragment = (Fragment) super.instantiateItem(container, position);
+        instantiatedFragments.put(position, fragment);
+        return fragment;
+    }
+
+    // - Suppress a fragment from the SparseArray
+    @Override
+    public void destroyItem(final ViewGroup container, final int position, final Object object) {
+        instantiatedFragments.remove(position);
+        super.destroyItem(container, position, object);
+    }
+
+    // - Fragment Getter
+    // - It will allow us to perform method's call from the fragment it return directly into our activity
+    @Nullable
+    public Fragment getFragment(final int position) {
+        return instantiatedFragments.get(position);
     }
 }
