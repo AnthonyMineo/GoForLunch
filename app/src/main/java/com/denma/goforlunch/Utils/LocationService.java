@@ -45,7 +45,6 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
 
     private double currentLat;
     private double currentLng;
-    private Location currentLocation;
 
     public LocationService() { }
 
@@ -104,7 +103,6 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
     private void setLocationData(Location location){
         currentLat = location.getLatitude();
         currentLng = location.getLongitude();
-        currentLocation = location;
     }
 
     @Override
@@ -134,7 +132,6 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
         intent.putExtra(EXTRA_LONGITUDE, Lng);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
-
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {

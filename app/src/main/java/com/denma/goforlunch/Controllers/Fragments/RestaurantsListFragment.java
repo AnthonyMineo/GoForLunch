@@ -13,17 +13,23 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 
-import com.denma.goforlunch.Models.GoogleAPI.Response;
-import com.denma.goforlunch.Models.GoogleAPI.Result;
+import com.denma.goforlunch.Models.GoogleAPI.Details.Periods;
+import com.denma.goforlunch.Models.GoogleAPI.Details.ResponseD;
+import com.denma.goforlunch.Models.GoogleAPI.Nearby.ResponseN;
+import com.denma.goforlunch.Models.GoogleAPI.Nearby.Result;
 import com.denma.goforlunch.R;
+import com.denma.goforlunch.Utils.GoogleMapsStream;
 import com.denma.goforlunch.Utils.ItemClickSupport;
 import com.denma.goforlunch.Views.RestaurantAdapter;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.observers.DisposableObserver;
 
 
 public class RestaurantsListFragment extends BaseFragment {
@@ -37,7 +43,9 @@ public class RestaurantsListFragment extends BaseFragment {
     // FOR DATA
     private static final String TAG = "RestaurantList_Fragment"; // - RestaurantsList Fragment ID for log
     private List<Result> mRestaurants;
-    public static RestaurantAdapter mRestaurantAdapter;
+    public RestaurantAdapter mRestaurantAdapter;
+    private Disposable disposable;
+    private Calendar calendar ;
 
     // --------------------
     // CREATION
@@ -49,7 +57,8 @@ public class RestaurantsListFragment extends BaseFragment {
         ButterKnife.bind(this, view); //Configure Butterknife
         this.configureRecyclerView();
         this.configureOnClickRecyclerView();
-        updateUI(mResponse);
+        calendar = Calendar.getInstance();
+        updateUI(mResponseN);
         Log.e(TAG, "onCreate");
         return view;
     }
@@ -103,11 +112,14 @@ public class RestaurantsListFragment extends BaseFragment {
     }
 
     @Override
-    public void updateUI(Response response) {
-        // This loop will go through all the results and add marker on each location.
-        for (int i = 0; i < response.getResults().size(); i++) { }
+    public void updateUI(ResponseN response) {
+        // This loop will go through all the results
+        for (int i = 0; i < response.getResults().size(); i++) {
+            executeHttpRequestWithRetrofit_DetailPlaces(response.getResults().get(i).getPlaceId(), i);
+        }
         mRestaurants.clear();
         mRestaurants.addAll(response.getResults());
+        mRestaurantAdapter.updateCurrentData(currentLat, currentLng);
         mRestaurantAdapter.notifyDataSetChanged();
         Log.e(TAG, "Update done ! " + String.valueOf(response.getResults().size()));
     }
@@ -115,6 +127,55 @@ public class RestaurantsListFragment extends BaseFragment {
     // --------------------
     // UTILS
     // --------------------
+
+    // - Set Opening hours for each restaurant in the mResponseN
+    private void executeHttpRequestWithRetrofit_DetailPlaces(String placeid, final int i) {
+        this.disposable = GoogleMapsStream.streamFetchDetailPlaces(placeid).subscribeWith(new DisposableObserver<ResponseD>() {
+
+            @Override
+            public void onNext(ResponseD responseD) {
+                Log.e(TAG, "DetailPlaces On Next");
+                int day = calendar.get(Calendar.DAY_OF_WEEK);
+
+                List<Periods> temp = responseD.getResult().getOpeningHours().getPeriods();
+
+                for (Periods p : temp){
+                    if((p.getOpen().getDay() + 1) == day){
+                        String open = p.getOpen().getTime();
+                        String close = p.getClose().getTime();
+
+                        // - Format Open hour
+                        StringBuilder str = new StringBuilder(open);
+                        str.insert(2, ":");
+                        open = str.toString();
+
+                        // - Format Close hour
+                        str = new StringBuilder(close);
+                        str.insert(2, ":");
+                        close = str.toString();
+
+                        // - Fusion !!
+                        String opening_hours = open + " - " + close;
+                        mResponseN.getResults().get(i).setOpening_hours(opening_hours);
+                    }
+                }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Log.e(TAG, "DetailPlaces On Error " + e.getMessage());
+            }
+
+            @Override
+            public void onComplete() {
+                Log.e(TAG, "DetailPlaces On Complete");
+            }
+        });
+    }
+
+    private void disposeWhenDestroy(){
+        if (this.disposable != null && !this.disposable.isDisposed()) this.disposable.dispose();
+    }
 
     // --------------------
     // NAVIGATION
@@ -131,6 +192,7 @@ public class RestaurantsListFragment extends BaseFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        this.disposeWhenDestroy();
         Log.e(TAG, "onDestroy");
     }
 

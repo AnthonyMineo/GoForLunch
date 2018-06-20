@@ -7,7 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.bumptech.glide.RequestManager;
-import com.denma.goforlunch.Models.GoogleAPI.Result;
+import com.denma.goforlunch.Models.GoogleAPI.Nearby.Result;
 import com.denma.goforlunch.R;
 
 import java.util.List;
@@ -18,6 +18,8 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantViewHolder
     private List<Result> mRestaurants;
     private RequestManager glide;
     private Context mContext;
+    private double currentLat;
+    private double currentLng;
 
     // CONSTRUCTOR
     public RestaurantAdapter(List<Result> restaurants, RequestManager glide) {
@@ -38,7 +40,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantViewHolder
     // UPDATE VIEW HOLDER WITH A RESTAURANTS
     @Override
     public void onBindViewHolder(RestaurantViewHolder viewHolder, int position) {
-        viewHolder.updateWithRestaurant(this.mRestaurants.get(position), this.glide, mContext);
+        viewHolder.updateWithRestaurant(this.mRestaurants.get(position), this.glide, mContext, this.currentLat, this.currentLng);
     }
 
     // RETURN THE TOTAL COUNT OF ITEMS IN THE LIST
@@ -49,5 +51,10 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantViewHolder
 
     public Result getRestaurant(int position){
         return this.mRestaurants.get(position);
+    }
+
+    public void updateCurrentData(double currentLat, double currentLng){
+        this.currentLat = currentLat;
+        this.currentLng = currentLng;
     }
 }

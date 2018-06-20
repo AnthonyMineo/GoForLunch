@@ -10,7 +10,8 @@ import android.view.ViewGroup;
 
 
 import com.denma.goforlunch.Controllers.Activities.LunchActivity;
-import com.denma.goforlunch.Models.GoogleAPI.Response;
+
+import com.denma.goforlunch.Models.GoogleAPI.Nearby.ResponseN;
 
 import butterknife.ButterKnife;
 
@@ -23,11 +24,10 @@ public abstract class BaseFragment extends Fragment {
     protected static final String PERMS = Manifest.permission.ACCESS_FINE_LOCATION;
 
     // FOR DATA
-
-    protected static LunchActivity mLunchActivity;
-    protected double currentLat;
-    protected double currentLng;
-    protected Response mResponse;
+    protected LunchActivity mLunchActivity;
+    protected static double currentLat;
+    protected static double currentLng;
+    protected static ResponseN mResponseN;
 
     // --------------------
     // CREATION
@@ -38,9 +38,9 @@ public abstract class BaseFragment extends Fragment {
         View view = inflater.inflate(this.getFragmentLayout(), container, false);
         ButterKnife.bind(this, view); //Configure Butterknife
         this.mLunchActivity = (LunchActivity) getActivity();
-        this.currentLat = mLunchActivity.getCurrentLat();
-        this.currentLng = mLunchActivity.getCurrentLng();
-        this.mResponse = mLunchActivity.getResponse();
+        currentLat = mLunchActivity.getCurrentLat();
+        currentLng = mLunchActivity.getCurrentLng();
+        mResponseN = mLunchActivity.getResponse();
         return view;
     }
 
@@ -62,7 +62,13 @@ public abstract class BaseFragment extends Fragment {
     // ACTIONS
     // --------------------
 
-    public abstract void updateUI(Response response);
+    public abstract void updateUI(ResponseN response);
+
+    public static void updateFragmentData(double lat, double lng, ResponseN rep){
+        currentLat = lat;
+        currentLng = lng;
+        mResponseN = rep;
+    }
 
     // --------------------
     // UTILS

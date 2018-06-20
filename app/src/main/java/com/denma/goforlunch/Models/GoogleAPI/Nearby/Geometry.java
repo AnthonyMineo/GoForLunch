@@ -1,4 +1,4 @@
-package com.denma.goforlunch.Models.GoogleAPI;
+package com.denma.goforlunch.Models.GoogleAPI.Nearby;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

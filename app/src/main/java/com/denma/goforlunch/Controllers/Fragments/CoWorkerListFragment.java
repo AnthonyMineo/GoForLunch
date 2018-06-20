@@ -3,7 +3,7 @@ package com.denma.goforlunch.Controllers.Fragments;
 
 import android.util.Log;
 
-import com.denma.goforlunch.Models.GoogleAPI.Response;
+import com.denma.goforlunch.Models.GoogleAPI.Nearby.ResponseN;
 import com.denma.goforlunch.R;
 
 
@@ -44,7 +44,7 @@ public class CoWorkerListFragment extends BaseFragment {
     // --------------------
 
     @Override
-    public void updateUI(Response response) {
+    public void updateUI(ResponseN response) {
 
     }
 

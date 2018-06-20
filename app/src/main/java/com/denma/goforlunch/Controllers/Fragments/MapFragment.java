@@ -14,7 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
-import com.denma.goforlunch.Models.GoogleAPI.Response;
+import com.denma.goforlunch.Models.GoogleAPI.Nearby.ResponseN;
 import com.denma.goforlunch.R;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -43,7 +43,6 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
     // FOR DATA
     private static final String TAG = "Map_Fragment"; // - Map Fragment ID for log
     private LatLng currentPosition;
-    private LatLng focusPosition;
 
     // --------------------
     // CREATION
@@ -60,9 +59,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
 
     public MapFragment() { }
 
-    public static MapFragment newInstance() {
-        return new MapFragment();
-    }
+    public static MapFragment newInstance() { return new MapFragment(); }
 
     // --------------------
     // GETTERS
@@ -113,9 +110,9 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
         this.currentPosition = new LatLng(currentLat, currentLng);
         changeFocusPosition(currentPosition);
 
-        if (mResponse != null){
+        if (mResponseN != null){
             // - Display nearby restaurant marker
-            updateUI(mResponse);
+            updateUI(mResponseN);
         }
 
     }
@@ -140,7 +137,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
     }
 
     @Override
-    public void updateUI(Response response) {
+    public void updateUI(ResponseN response) {
         mMap.clear();
         // This loop will go through all the results and add marker on each location.
         for (int i = 0; i < response.getResults().size(); i++) {
@@ -195,7 +192,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
         }
         Log.e(TAG, "onResume");
         // - Allow us to handle user's selection from Place autocomplete
-        if(mLunchActivity.getFocusPos() != null)
+       if(mLunchActivity.getFocusPos() != null)
             changeFocusPosition(mLunchActivity.getFocusPos());
     }
 

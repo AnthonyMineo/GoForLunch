@@ -67,7 +67,7 @@
             </LinearLayout>
 
             <TextView
-                android:id="@+id/fragment_recycle_item_openning_hours"
+                android:id="@+id/fragment_recycle_item_opening_hours"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="12sp"

@@ -24,9 +24,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.denma.goforlunch.Controllers.Fragments.BaseFragment;
 import com.denma.goforlunch.Controllers.Fragments.CoWorkerListFragment;
 import com.denma.goforlunch.Controllers.Fragments.RestaurantsListFragment;
-import com.denma.goforlunch.Models.GoogleAPI.Response;
+import com.denma.goforlunch.Models.GoogleAPI.Nearby.ResponseN;
 import com.denma.goforlunch.R;
 import com.denma.goforlunch.Utils.GoogleMapsStream;
 import com.denma.goforlunch.Utils.LocationService;
@@ -73,12 +74,11 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
     private static final int PROXIMITY_RADIUS = 1000;
     private double currentLat;
     private double currentLng;
-    private Location currentLocation;
     private LatLng focusPos;
     private boolean mServiceState;
     private boolean mInitUI;
     private Disposable disposable;
-    private Response mResponse;
+    private ResponseN mResponseN;
 
     // --------------------
     // CREATION
@@ -88,6 +88,9 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.mInitUI = false;
+        this.configureToolBar();
+        this.configureDrawerLayout();
+        this.configureNavigationView();
         this.configureBroadcastReceiver();
         this.configureLocationService();
         Log.e(TAG, "onCreate");
@@ -114,8 +117,8 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
         return focusPos;
     }
 
-    public Response getResponse(){
-        return mResponse;
+    public ResponseN getResponse(){
+        return mResponseN;
     }
 
     // --------------------
@@ -230,7 +233,8 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
             public void onPageSelected(int position) {
                 if(position == 1){
                     // - We need to do something like this because the middle fragment is not re-created when switching between 3 views
-                    mRestaurantsListFragment.updateUI(mResponse);
+                    if(mResponseN != null)
+                        mRestaurantsListFragment.updateUI(mResponseN);
                 }
             }
 
@@ -343,19 +347,19 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
     }
 
     //- Execute our Stream
-    protected void executeHttpRequestWithRetrofit_NearbyPlaces(){
+    private void executeHttpRequestWithRetrofit_NearbyPlaces(){
         // - Execute the stream subscribing to Observable defined inside GoogleMapsStream
-        this.disposable = GoogleMapsStream.streamFetchNearbyPlaces("restaurant", currentLat + "," + currentLng, PROXIMITY_RADIUS).subscribeWith(new DisposableObserver<Response>() {
+        this.disposable = GoogleMapsStream.streamFetchNearbyPlaces("restaurant", currentLat + "," + currentLng, PROXIMITY_RADIUS).subscribeWith(new DisposableObserver<ResponseN>() {
             @Override
-            public void onNext(Response response) {
+            public void onNext(ResponseN response) {
                 Log.e(TAG,"NearbyPlaces On Next");
                 // - Update local Response
-                mResponse = response;
+                mResponseN = response;
             }
 
             @Override
             public void onError(Throwable e) {
-                Log.e(TAG,"NearbyPlaces On Error "+ e.getMessage());
+                Log.e(TAG,"NearbyPlaces On Error " + e.getMessage());
             }
 
             @Override
@@ -366,8 +370,8 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
                     ConfigureActivityUI();
                 } else {
                     // - Else update the UI of fragment using Response from Google Place API
-                    mMapFragment.updateUI(mResponse);
-                    mRestaurantsListFragment.updateUI(mResponse);
+                    BaseFragment.updateFragmentData(currentLat, currentLng, mResponseN);
+                    mMapFragment.updateUI(mResponseN);
                 }
             }
         });
@@ -375,9 +379,6 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
 
     // - Configure Activity UI and show the mapFragment first
     private void ConfigureActivityUI(){
-        this.configureToolBar();
-        this.configureDrawerLayout();
-        this.configureNavigationView();
         this.configureViewPagerAndTabs();
         this.showFirstFragment();
         // - UI is configure now
@@ -448,6 +449,7 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
         super.onDestroy();
         Log.e(TAG, "onDestroy");
         this.disposeWhenDestroy();
+        this.disconnectUser();
         // - Stop the location service
         stopService(new Intent(this, LocationService.class));
         // - Service is off now
