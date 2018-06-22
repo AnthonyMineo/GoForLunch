@@ -48,6 +48,7 @@ import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.denma.goforlunch.Controllers.Fragments.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.firebase.auth.FirebaseUser;
 
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
@@ -80,6 +81,7 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
     private boolean mInitUI;
     private Disposable disposable;
     private ResponseN mResponseN;
+    private FirebaseUser currentUser;
 
     // --------------------
     // CREATION
@@ -89,6 +91,7 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.mInitUI = false;
+
         this.configureToolBar();
         this.configureDrawerLayout();
         this.configureNavigationView();
@@ -120,6 +123,12 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
 
     public ResponseN getResponse(){
         return mResponseN;
+    }
+
+    @Nullable
+    @Override
+    public FirebaseUser getCurrentUser() {
+        return currentUser;
     }
 
     // --------------------

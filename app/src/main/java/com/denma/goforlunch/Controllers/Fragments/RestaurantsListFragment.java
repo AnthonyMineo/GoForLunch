@@ -99,7 +99,7 @@ public class RestaurantsListFragment extends BaseFragment {
     }
 
     private void configureOnClickRecyclerView() {
-        ItemClickSupport.addTo(recyclerView, R.layout.fragment_recycle_item)
+        ItemClickSupport.addTo(recyclerView, R.layout.restaurant_recycle_item)
                 .setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
                     @Override
                     public void onItemClicked(RecyclerView recyclerView, int position, View v) {

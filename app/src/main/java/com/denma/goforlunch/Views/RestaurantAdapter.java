@@ -32,7 +32,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantViewHolder
         // CREATE VIEW HOLDER AND INFLATING ITS XML LAYOUT
         this.mContext = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(mContext);
-        View view = inflater.inflate(R.layout.fragment_recycle_item, parent, false);
+        View view = inflater.inflate(R.layout.restaurant_recycle_item, parent, false);
 
         return new RestaurantViewHolder(view);
     }
