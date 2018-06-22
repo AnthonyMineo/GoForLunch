@@ -37,7 +37,7 @@
         <!-- Google MapsAPI Key / Android restriction -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="@string/key_maps_sdk" />
+            android:value="@string/MAPS_API_KEY"/>
 
         <service
             android:name=".Utils.LocationService"

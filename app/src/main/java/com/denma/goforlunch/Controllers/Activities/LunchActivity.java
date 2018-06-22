@@ -24,6 +24,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.denma.goforlunch.BuildConfig;
 import com.denma.goforlunch.Controllers.Fragments.BaseFragment;
 import com.denma.goforlunch.Controllers.Fragments.CoWorkerListFragment;
 import com.denma.goforlunch.Controllers.Fragments.RestaurantsListFragment;

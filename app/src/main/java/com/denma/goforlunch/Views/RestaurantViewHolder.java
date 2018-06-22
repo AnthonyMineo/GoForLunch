@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.RequestManager;
+import com.denma.goforlunch.BuildConfig;
 import com.denma.goforlunch.Models.GoogleAPI.Nearby.Result;
 import com.denma.goforlunch.R;
 
@@ -68,7 +69,7 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
         // - Set Main Photo if it exist
         if(restaurant.getPhotos().size() > 0){
             photoRef = restaurant.getPhotos().get(0).getPhotoReference();
-            String url = "https://maps.googleapis.com/maps/api/place/photo?maxheight=500&maxwidth=500&photoreference=" + photoRef + "&key=" + context.getResources().getString(R.string.key_place_api);
+            String url = "https://maps.googleapis.com/maps/api/place/photo?maxheight=500&maxwidth=500&photoreference=" + photoRef + "&key=" + BuildConfig.PLACE_API_KEY;
             glide.load(url).into(restImage);
         }
         else {
