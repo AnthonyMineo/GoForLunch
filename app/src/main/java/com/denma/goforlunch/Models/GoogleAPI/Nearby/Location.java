@@ -3,7 +3,9 @@ package com.denma.goforlunch.Models.GoogleAPI.Nearby;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Location {
+import java.io.Serializable;
+
+public class Location implements Serializable{
 
     @SerializedName("lat")
     @Expose

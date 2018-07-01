@@ -1,12 +1,14 @@
 package com.denma.goforlunch.Models.GoogleAPI.Nearby;
 
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Result {
+public class Result implements Serializable {
 
     @SerializedName("geometry")
     @Expose
@@ -25,6 +27,8 @@ public class Result {
     private String vicinity;
     // - Set by DetailPlaces
     private String opening;
+    private String phoneNumber;
+    private String website;
 
 
     public Geometry getGeometry() {
@@ -70,4 +74,12 @@ public class Result {
     public String getOpening_hours() { return opening; }
 
     public void setOpening_hours(String opening_hours) { this.opening = opening_hours; }
+
+    public String getPhoneNumber() { return phoneNumber; }
+
+    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
+
+    public String getWebsite() { return website; }
+
+    public void setWebsite(String website) { this.website = website; }
 }

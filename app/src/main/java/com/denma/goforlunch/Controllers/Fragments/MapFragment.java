@@ -28,10 +28,11 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import butterknife.BindView;
+import butterknife.ButterKnife;
 import pub.devrel.easypermissions.EasyPermissions;
 
 
-public class MapFragment extends BaseFragment implements OnMapReadyCallback, GoogleMap.OnMyLocationButtonClickListener, GoogleMap.OnMyLocationClickListener {
+public class MapFragment extends BaseFragment implements OnMapReadyCallback, GoogleMap.OnMyLocationButtonClickListener, GoogleMap.OnMyLocationClickListener, GoogleMap.OnMarkerClickListener {
 
     // FOR DESIGN
     private GoogleMap mMap;
@@ -51,6 +52,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
+        ButterKnife.bind(this, view); //Configure Butterknife
         mMapView.onCreate(savedInstanceState);
         mMapView.getMapAsync(this);
         Log.e(TAG, "onCreate");
@@ -129,6 +131,11 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
         // Maybe useful later
     }
 
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        return false;
+    }
+
     // - Change the Camera position on the map to the given LatLng
     public void changeFocusPosition(LatLng latLng){
         Log.e(TAG, "CameraUpdate");
@@ -150,8 +157,6 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
             LatLng latLng = new LatLng(lat, lng);
             // Position of Marker on Map
             markerOptions.position(latLng);
-            // Adding Title to the Marker
-            markerOptions.title(placeName + " : " + vicinity);
             // Adding Marker to the Camera.
             Marker m = mMap.addMarker(markerOptions);
             // Adding colour to the marker
@@ -227,5 +232,4 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
         }
         Log.e(TAG, "onLowMemory");
     }
-
 }
