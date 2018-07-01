@@ -107,12 +107,14 @@ public class RestaurantsListFragment extends BaseFragment {
                 .setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
                     @Override
                     public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-                        // 1 - Get user from adapter
+                        // - Get restaurant from adapter
                         Result restaurant = mRestaurantAdapter.getRestaurant(position);
-                        // 2 - Do something
-                        Intent i = new Intent(getActivity(), RestaurantDetailActivity.class);
-                        i.putExtra("restaurant",  restaurant);
-                        startActivity(i);
+                        // - Firebase check
+                        restaurantExist(restaurant);
+                        // - Launch Detail activity
+                        Intent intent = new Intent(getActivity(), RestaurantDetailActivity.class);
+                        intent.putExtra("restaurant",  restaurant);
+                        startActivity(intent);
                         //Toast.makeText(getContext(), "You click on : " + restaurants.getName(), Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -179,6 +181,7 @@ public class RestaurantsListFragment extends BaseFragment {
                 {
                     mRestaurants.clear();
                     mRestaurants.addAll(responseN.getResults());
+                    mRestaurantAdapter.updateCurrentData(currentLat, currentLng);
                     mRestaurantAdapter.notifyDataSetChanged();
                 }
                 Log.e(TAG, "DetailPlaces On Complete");

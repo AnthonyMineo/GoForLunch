@@ -199,7 +199,7 @@ public class RestaurantDetailActivity extends BaseActivity {
             imIn = false;
         } else {
             floatingButton.setImageDrawable(getResources().getDrawable(R.drawable.baseline_check_circle_grey_48));
-            UserHelper.updateLunch(getCurrentUser().getUid(), null).addOnFailureListener(this.onFailureListener());
+            UserHelper.updateLunch(getCurrentUser().getUid(), "").addOnFailureListener(this.onFailureListener());
             imIn = true;
         }
 

@@ -3,6 +3,7 @@ package com.denma.goforlunch.Controllers.Fragments;
 
 import android.annotation.SuppressLint;
 
+import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 
@@ -14,7 +15,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
+import com.denma.goforlunch.Controllers.Activities.RestaurantDetailActivity;
 import com.denma.goforlunch.Models.GoogleAPI.Nearby.ResponseN;
+import com.denma.goforlunch.Models.GoogleAPI.Nearby.Result;
 import com.denma.goforlunch.R;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -92,6 +95,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
         Log.e(TAG, "onMapReady");
         this.mMap.setOnMyLocationButtonClickListener(this);
         this.mMap.setOnMyLocationClickListener(this);
+        this.mMap.setOnMarkerClickListener(this);
 
         // - Adjust MyLocation Button position on screen
         View locationButton = (View) mMapView.findViewWithTag("GoogleMapMyLocationButton");
@@ -108,7 +112,6 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
         }
 
         // - Change camera to currentPosition
-
         this.currentPosition = new LatLng(currentLat, currentLng);
         changeFocusPosition(currentPosition);
 
@@ -133,6 +136,18 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
 
     @Override
     public boolean onMarkerClick(Marker marker) {
+        Log.e(TAG, "markerOnClick");
+        for(int i = 0; i < mResponseN.getResults().size(); i++) {
+            if (marker.getSnippet().equals(mResponseN.getResults().get(i).getPlaceId())) {
+                Result restaurant = mResponseN.getResults().get(i);
+                // - Firebase check
+                restaurantExist(restaurant);
+                // - Launch Detail activity
+                Intent intent = new Intent(getActivity(), RestaurantDetailActivity.class);
+                intent.putExtra("restaurant", restaurant);
+                startActivity(intent);
+            }
+        }
         return false;
     }
 
@@ -150,13 +165,13 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
         for (int i = 0; i < response.getResults().size(); i++) {
             Double lat = response.getResults().get(i).getGeometry().getLocation().getLat();
             Double lng = response.getResults().get(i).getGeometry().getLocation().getLng();
-            String placeName = response.getResults().get(i).getName();
-            String vicinity = response.getResults().get(i).getVicinity();
+            String placeId =  response.getResults().get(i).getPlaceId();
 
             MarkerOptions markerOptions = new MarkerOptions();
             LatLng latLng = new LatLng(lat, lng);
             // Position of Marker on Map
             markerOptions.position(latLng);
+            markerOptions.snippet(placeId);
             // Adding Marker to the Camera.
             Marker m = mMap.addMarker(markerOptions);
             // Adding colour to the marker

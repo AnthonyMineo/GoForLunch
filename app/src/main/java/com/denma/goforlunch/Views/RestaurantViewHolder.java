@@ -4,6 +4,7 @@ import android.content.Context;
 import android.location.Location;
 import android.support.v7.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -53,6 +54,11 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
 
         // - Set Distance between user and restaurant
         this.restDistance.setText(String.valueOf(Math.round(distanceTo[0]))+ "m");
+        Log.e("TARGET_LAT", String.valueOf(targetLat));
+        Log.e("TARGET_LNG", String.valueOf(targetLng));
+        Log.e("CURRENT_LAT", String.valueOf(currentLat));
+        Log.e("CURRENT_LNG", String.valueOf(currentLng));
+        Log.e("DISTANCE_TO", String.valueOf(distanceTo[0])+ "m");
 
         // - Set Address
         this.restLocation.setText(restaurant.getVicinity());

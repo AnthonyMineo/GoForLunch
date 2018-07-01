@@ -35,9 +35,8 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
     public static final String ACTION_LOCATION_BROADCAST = "G4L_LocationService_LocationBroadcast"; // - The broadcast ID
     public static final String EXTRA_LATITUDE = "extra_latitude";
     public static final String EXTRA_LONGITUDE = "extra_longitude";
-    public static final String EXTRA_LOCATION = "extra_location";
-    public static final int INTERVAL = 30000;
-    public static final int FASTEST_INTERVAL = 20000;
+    public static final int INTERVAL = 20000;
+    public static final int FASTEST_INTERVAL = 10000;
 
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;

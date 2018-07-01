@@ -7,7 +7,7 @@ public class User {
     private String username;
     private String mail;
     @Nullable private String urlPicture;
-    @Nullable private String lunchRestaurant;
+    private String lunchRestaurant;
 
     public User(){}
 
@@ -25,7 +25,6 @@ public class User {
     public String getMail() { return mail; }
     @Nullable
     public String getUrlPicture() { return urlPicture; }
-    @Nullable
     public String getLunchRestaurant() { return lunchRestaurant; }
 
     // --- SETTERS ---
@@ -33,5 +32,5 @@ public class User {
     public void setUid(String uid) { this.uid = uid; }
     public void setMail(String mail) { this.mail = mail; }
     public void setUrlPicture(String urlPicture) { this.urlPicture = urlPicture; }
-    public void setLunchRestaurant(@Nullable String lunchRestaurant) { this.lunchRestaurant = lunchRestaurant; }
+    public void setLunchRestaurant(String lunchRestaurant) { this.lunchRestaurant = lunchRestaurant; }
 }

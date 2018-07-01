@@ -36,6 +36,6 @@ public class CoWorkerViewHolder extends RecyclerView.ViewHolder {
 
 
         // - Set User Choice
-        this.userChoice.setText("this will change soon, thx to firebase");
+        this.userChoice.setText(user.getUsername() + " is eating ");
     }
 }

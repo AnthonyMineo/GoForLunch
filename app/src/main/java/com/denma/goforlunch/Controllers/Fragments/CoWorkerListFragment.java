@@ -1,6 +1,7 @@
 package com.denma.goforlunch.Controllers.Fragments;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.denma.goforlunch.Controllers.Activities.RestaurantDetailActivity;
 import com.denma.goforlunch.Models.Firebase.User;
 import com.denma.goforlunch.Models.GoogleAPI.Nearby.ResponseN;
 import com.denma.goforlunch.Models.GoogleAPI.Nearby.Result;
@@ -46,6 +48,7 @@ public class CoWorkerListFragment extends BaseFragment {
     private static final String TAG = "CoWorker_Fragment"; // - CoWorker Fragment ID for log
     private List<User> users;
     public CoWorkerAdapter mCoworkerAdapter;
+    private Result restaurant;
 
     // --------------------
     // CREATION
@@ -103,10 +106,20 @@ public class CoWorkerListFragment extends BaseFragment {
                 .setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
                     @Override
                     public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-                        // 1 - Get user from adapter
+                        // - Get user from adapter
                         User user = mCoworkerAdapter.getCoWorker(position);
-                        // 2 - Do something
-                        Toast.makeText(getContext(), "You click on : " +user.getUsername(), Toast.LENGTH_SHORT).show();
+                        // - Search the restaurant chosen by selected user
+                        for(int i = 0; i < mResponseN.getResults().size(); i++){
+                            if(user.getLunchRestaurant().equals(mResponseN.getResults().get(i).getPlaceId())){
+                                Result restaurant = mResponseN.getResults().get(i);
+                                // - Firebase check
+                                restaurantExist(restaurant);
+                                // - Launch Detail activity
+                                Intent intent = new Intent(getActivity(), RestaurantDetailActivity.class);
+                                intent.putExtra("restaurant",  restaurant);
+                                startActivity(intent);
+                            }
+                        }
                     }
                 });
     }
