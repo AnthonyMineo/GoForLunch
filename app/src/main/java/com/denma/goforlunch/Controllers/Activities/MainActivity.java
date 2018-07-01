@@ -109,8 +109,9 @@ public class MainActivity extends BaseActivity {
             String username = this.getCurrentUser().getDisplayName();
             String mail = this.getCurrentUser().getEmail();
             String uid = this.getCurrentUser().getUid();
+            String lunchRestaurant = null;
 
-            UserHelper.createUser(uid, username, mail, urlPicture)
+            UserHelper.createUser(uid, username, mail, urlPicture, lunchRestaurant)
                     .addOnFailureListener(this.onFailureListener());
         }
     }

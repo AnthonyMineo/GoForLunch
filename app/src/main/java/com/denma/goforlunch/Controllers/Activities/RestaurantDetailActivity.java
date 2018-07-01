@@ -57,6 +57,7 @@ public class RestaurantDetailActivity extends BaseActivity {
     private static final String TAG = "RestDetail_Activity"; // - RestaurantDetail Activity ID for log
     private Result currentRest;
     private List<User> users;
+    private User currentUser;
     public CoWorkerAdapter mCoworkerAdapter;
     private boolean imIn;
 
@@ -132,16 +133,22 @@ public class RestaurantDetailActivity extends BaseActivity {
     private void configureUI(){
         // - Get the current restaurant from the intent's extra
         this.currentRest = (Result) getIntent().getSerializableExtra("restaurant");
+        UserHelper.getUser(getCurrentUser().getUid()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                currentUser = task.getResult().toObject(User.class);
 
-        // need a test if user choose to go on this restaurant or not
-        imIn = false;
-        // - Style for floating button
-        if(imIn){
-            floatingButton.setImageDrawable(getResources().getDrawable(R.drawable.baseline_check_circle_green_48));
-        } else {
-            floatingButton.setImageDrawable(getResources().getDrawable(R.drawable.baseline_check_circle_grey_48));
-        }
-
+                // - Style for floating button
+                if(currentRest.getPlaceId().equals(currentUser.getLunchRestaurant())){
+                    imIn = true;
+                    floatingButton.setImageDrawable(getResources().getDrawable(R.drawable.baseline_check_circle_green_48));
+                }
+                else {
+                    imIn = false;
+                    floatingButton.setImageDrawable(getResources().getDrawable(R.drawable.baseline_check_circle_grey_48));
+                }
+            }
+        });
 
         // - Set the restaurant main image
         if(currentRest.getPhotos().size() > 0){
@@ -188,9 +195,11 @@ public class RestaurantDetailActivity extends BaseActivity {
         // - Style for floating button
         if(imIn){
             floatingButton.setImageDrawable(getResources().getDrawable(R.drawable.baseline_check_circle_green_48));
+            UserHelper.updateLunch(getCurrentUser().getUid(), currentRest.getPlaceId()).addOnFailureListener(this.onFailureListener());
             imIn = false;
         } else {
             floatingButton.setImageDrawable(getResources().getDrawable(R.drawable.baseline_check_circle_grey_48));
+            UserHelper.updateLunch(getCurrentUser().getUid(), null).addOnFailureListener(this.onFailureListener());
             imIn = true;
         }
 
