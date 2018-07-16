@@ -5,8 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 
 import android.content.IntentFilter;
-import android.location.Location;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
@@ -24,14 +24,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.denma.goforlunch.BuildConfig;
 import com.denma.goforlunch.Controllers.Fragments.BaseFragment;
 import com.denma.goforlunch.Controllers.Fragments.CoWorkerListFragment;
 import com.denma.goforlunch.Controllers.Fragments.RestaurantsListFragment;
 import com.denma.goforlunch.Models.GoogleAPI.Nearby.ResponseN;
+import com.denma.goforlunch.Models.GoogleAPI.Nearby.Result;
 import com.denma.goforlunch.R;
 import com.denma.goforlunch.Utils.GoogleMapsStream;
 import com.denma.goforlunch.Utils.LocationService;
+import com.denma.goforlunch.Utils.RestaurantHelper;
 import com.denma.goforlunch.Views.PageAdapter;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -48,7 +49,10 @@ import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.denma.goforlunch.Controllers.Fragments.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
@@ -183,7 +187,7 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
             case R.id.menu_drawer_item_log_out:
                 //Do something about log out
                 this.disconnectUser();
-                finish();
+                this.finish();
                 break;
             default:
                 break;
@@ -245,6 +249,7 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
                     // - We need to do something like this because the middle fragment is not re-created when switching between 3 views
                     if(mResponseN != null)
                         mRestaurantsListFragment.updateUI(mResponseN);
+
                 }
             }
 
@@ -376,12 +381,36 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
             public void onComplete() {
                 Log.e(TAG,"NearbyPlaces On Complete !!");
                 // - If UI method are not already call, then call them
+                for(Result rest : mResponseN.getResults()){
+                    restaurantExist(rest);
+                }
                 if (mInitUI == false){
                     ConfigureActivityUI();
                 } else {
                     // - Else update the UI of fragment using Response from Google Place API
                     BaseFragment.updateFragmentData(currentLat, currentLng, mResponseN);
                     mMapFragment.updateUI(mResponseN);
+                }
+            }
+        });
+    }
+
+    // - Http request that create restaurant in firestore
+    protected void createRestaurantInFireStore(Result result){
+        String placeId = result.getPlaceId();
+        int ranking = 0;
+
+        RestaurantHelper.createRestaurant(placeId, ranking).addOnFailureListener(this.onFailureListener());
+        Log.e("AAAAAAAAAAA", "restaurant create");
+    }
+
+    // - Test if restaurant already exist in firebase, if not create it
+    protected void restaurantExist(final Result result){
+        RestaurantHelper.getRestaurantsCollection().document(result.getPlaceId()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if(!task.getResult().exists()) {
+                    createRestaurantInFireStore(result);
                 }
             }
         });
@@ -456,7 +485,6 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         Log.e(TAG, "onDestroy");
         this.disposeWhenDestroy();
         this.disconnectUser();
@@ -464,6 +492,7 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
         stopService(new Intent(this, LocationService.class));
         // - Service is off now
         mServiceState = false;
+        super.onDestroy();
     }
 
     @Override

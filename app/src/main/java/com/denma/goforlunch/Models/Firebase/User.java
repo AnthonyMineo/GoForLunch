@@ -11,7 +11,7 @@ public class User {
 
     public User(){}
 
-    public User(String uid, String username,String mail, String urlPicture, String lunchRestaurant){
+    public User(String uid, String username, String mail, String urlPicture, String lunchRestaurant){
         this.uid = uid;
         this.username = username;
         this.urlPicture = urlPicture;
@@ -28,9 +28,20 @@ public class User {
     public String getLunchRestaurant() { return lunchRestaurant; }
 
     // --- SETTERS ---
-    public void setUsername(String username) { this.username = username; }
-    public void setUid(String uid) { this.uid = uid; }
-    public void setMail(String mail) { this.mail = mail; }
-    public void setUrlPicture(String urlPicture) { this.urlPicture = urlPicture; }
-    public void setLunchRestaurant(String lunchRestaurant) { this.lunchRestaurant = lunchRestaurant; }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+    public void setUsername(String username) {
+        this.username = username;
+    }
+    public void setMail(String mail) {
+        this.mail = mail;
+    }
+    public void setUrlPicture(@Nullable String urlPicture) {
+        this.urlPicture = urlPicture;
+    }
+    public void setLunchRestaurant(String lunchRestaurant) {
+        this.lunchRestaurant = lunchRestaurant;
+    }
 }

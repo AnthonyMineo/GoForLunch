@@ -1,12 +1,18 @@
 package com.denma.goforlunch.Utils;
 
+import android.support.annotation.NonNull;
+import android.util.Log;
+
 import com.denma.goforlunch.Models.Firebase.Restaurant;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Transaction;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class RestaurantHelper {
 
@@ -18,8 +24,8 @@ public class RestaurantHelper {
     }
 
     // --- CREATE ---
-    public static Task<Void> createRestaurant(String placeId, int ranking, List<String> luncherName){
-        Restaurant restaurantToCreate = new Restaurant(placeId, ranking, luncherName);
+    public static Task<Void> createRestaurant(String placeId, int ranking){
+        Restaurant restaurantToCreate = new Restaurant(placeId, ranking);
         return RestaurantHelper.getRestaurantsCollection().document(placeId).set(restaurantToCreate);
     }
 
@@ -29,16 +35,48 @@ public class RestaurantHelper {
     }
 
     // --- UPDATE ---
-    public static Task<Void> updateRanking(String placeId, int ranking){
-        return RestaurantHelper.getRestaurantsCollection().document(placeId).update("ranking", ranking);
+    public static Task<Void> addLuncherId(String placeId, String luncherId){
+        Map<String, Object> mock = new HashMap<>();
+        return RestaurantHelper.getRestaurantsCollection().document(placeId).collection("luncherId").document(luncherId).set(mock);
     }
 
-    public static Task<Void> updateLuncherName(String placeId, List<String> luncherName){
-        return RestaurantHelper.getRestaurantsCollection().document(placeId).update("luncherName", luncherName);
+    public static void incRanking(final String placeId){
+        Log.e("incRanking", "start");
+        FirebaseFirestore.getInstance().runTransaction(new Transaction.Function<Void>(){
+            @Override
+            public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+                DocumentSnapshot docSnap = transaction.get(RestaurantHelper.getRestaurantsCollection().document(placeId));
+                Restaurant rest = docSnap.toObject(Restaurant.class);
+                int rank =  rest.getRanking() + 1;
+                transaction.update(RestaurantHelper.getRestaurantsCollection().document(placeId), "ranking", rank);
+                Log.e("incRanking", "+1");
+                return null;
+            }
+        });
+    }
+
+    public static void decRanking(final String placeId){
+        Log.e("decRanking", "start");
+
+        FirebaseFirestore.getInstance().runTransaction(new Transaction.Function<Void>(){
+            @Override
+            public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+                DocumentSnapshot docSnap = transaction.get(RestaurantHelper.getRestaurantsCollection().document(placeId));
+                Restaurant rest = docSnap.toObject(Restaurant.class);
+                int rank = rest.getRanking() - 1;
+                transaction.update(RestaurantHelper.getRestaurantsCollection().document(placeId), "ranking", rank);
+                Log.e("decRanking", "-1");
+                return null;
+            }
+        });
     }
 
     // --- DELETE ---
     public static Task<Void> deleteRestaurant(String placeId){
         return RestaurantHelper.getRestaurantsCollection().document(placeId).delete();
+    }
+
+    public static  Task<Void> deleteLuncherId(String placeId, String luncherId){
+        return RestaurantHelper.getRestaurantsCollection().document(placeId).collection("luncherId").document(luncherId).delete();
     }
 }

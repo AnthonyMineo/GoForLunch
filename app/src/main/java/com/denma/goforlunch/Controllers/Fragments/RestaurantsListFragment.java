@@ -4,14 +4,12 @@ package com.denma.goforlunch.Controllers.Fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 
@@ -25,7 +23,6 @@ import com.denma.goforlunch.Utils.GoogleMapsStream;
 import com.denma.goforlunch.Utils.ItemClickSupport;
 import com.denma.goforlunch.Views.RestaurantAdapter;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -109,8 +106,6 @@ public class RestaurantsListFragment extends BaseFragment {
                     public void onItemClicked(RecyclerView recyclerView, int position, View v) {
                         // - Get restaurant from adapter
                         Result restaurant = mRestaurantAdapter.getRestaurant(position);
-                        // - Firebase check
-                        restaurantExist(restaurant);
                         // - Launch Detail activity
                         Intent intent = new Intent(getActivity(), RestaurantDetailActivity.class);
                         intent.putExtra("restaurant",  restaurant);
@@ -122,10 +117,10 @@ public class RestaurantsListFragment extends BaseFragment {
 
     @Override
     public void updateUI(ResponseN responseN) {
-        int responseSize = responseN.getResults().size();
+        mRestaurants.clear();
         // This loop will go through all the results
-        for (int i = 0; i < responseSize; i++) {
-            executeHttpRequestWithRetrofit_DetailPlaces(responseN.getResults().get(i).getPlaceId(), i, responseSize, responseN);
+        for (int i = 0; i < responseN.getResults().size(); i++) {
+            executeHttpRequestWithRetrofit_DetailPlaces(responseN.getResults().get(i).getPlaceId(), i, responseN);
         }
         Log.e(TAG, "Update done ! " + String.valueOf(responseN.getResults().size()));
     }
@@ -135,12 +130,11 @@ public class RestaurantsListFragment extends BaseFragment {
     // --------------------
 
     // - Set Opening hours for each restaurant in the mResponseN
-    private void executeHttpRequestWithRetrofit_DetailPlaces(String placeId, final int i, final int responseSize, final ResponseN responseN) {
+    private void executeHttpRequestWithRetrofit_DetailPlaces(String placeId, final int i, final ResponseN responseN) {
         this.disposable = GoogleMapsStream.streamFetchDetailPlaces(placeId).subscribeWith(new DisposableObserver<ResponseD>() {
 
             @Override
             public void onNext(ResponseD responseD) {
-                Log.e(TAG, "DetailPlaces On Next");
                 int day = calendar.get(Calendar.DAY_OF_WEEK);
 
                 List<Periods> temp = responseD.getResult().getOpeningHours().getPeriods();
@@ -149,6 +143,14 @@ public class RestaurantsListFragment extends BaseFragment {
                     if((p.getOpen().getDay() + 1) == day){
                         String open = p.getOpen().getTime();
                         String close = p.getClose().getTime();
+
+                        // need a test to change format if it's close
+                        if(open.equals("")){
+                            Log.e(TAG, "OOOOOKKKKKK");
+                        }
+                        if(open == null){
+                            Log.e(TAG, "NUUUUUUUUUUULLLLLLLLLLL");
+                        }
 
                         // - Format Open hour
                         StringBuilder str = new StringBuilder(open);
@@ -165,9 +167,9 @@ public class RestaurantsListFragment extends BaseFragment {
                         mResponseN.getResults().get(i).setOpening_hours(opening_hours);
                     }
                 }
-
                 mResponseN.getResults().get(i).setPhoneNumber(responseD.getResult().getPhoneNumber());
                 mResponseN.getResults().get(i).setWebsite(responseD.getResult().getWebsite());
+                Log.e(TAG, "DetailPlaces On Next");
             }
 
             @Override
@@ -177,13 +179,9 @@ public class RestaurantsListFragment extends BaseFragment {
 
             @Override
             public void onComplete() {
-                if(i == (responseSize -1))
-                {
-                    mRestaurants.clear();
-                    mRestaurants.addAll(responseN.getResults());
-                    mRestaurantAdapter.updateCurrentData(currentLat, currentLng);
-                    mRestaurantAdapter.notifyDataSetChanged();
-                }
+                mRestaurants.add(responseN.getResults().get(i));
+                mRestaurantAdapter.updateCurrentData(currentLat, currentLng);
+                mRestaurantAdapter.notifyDataSetChanged();
                 Log.e(TAG, "DetailPlaces On Complete");
             }
         });

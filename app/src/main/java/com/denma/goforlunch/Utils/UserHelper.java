@@ -6,6 +6,9 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class UserHelper {
 
     private static final String COLLECTION_NAME = "users";
@@ -39,8 +42,17 @@ public class UserHelper {
         return UserHelper.getUsersCollection().document(uid).update("lunchRestaurant", lunchRestaurant);
     }
 
+    public static Task<Void> addLike(String uid, String restId){
+        Map<String, Object> mock = new HashMap<>();
+        return UserHelper.getUsersCollection().document(uid).collection("restLike").document(restId).set(mock);
+    }
+
     // --- DELETE ---
     public static Task<Void> deleteUser(String uid){
         return UserHelper.getUsersCollection().document(uid).delete();
+    }
+
+    public static Task<Void> deleteLike(String uid, String restId){
+        return UserHelper.getUsersCollection().document(uid).collection("restLike").document(restId).delete();
     }
 }

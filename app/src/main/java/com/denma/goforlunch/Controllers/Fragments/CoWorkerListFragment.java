@@ -10,7 +10,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.denma.goforlunch.Controllers.Activities.RestaurantDetailActivity;
@@ -21,11 +20,8 @@ import com.denma.goforlunch.R;
 import com.denma.goforlunch.Utils.ItemClickSupport;
 import com.denma.goforlunch.Utils.UserHelper;
 import com.denma.goforlunch.Views.CoWorkerAdapter;
-import com.denma.goforlunch.Views.RestaurantAdapter;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -112,8 +108,6 @@ public class CoWorkerListFragment extends BaseFragment {
                         for(int i = 0; i < mResponseN.getResults().size(); i++){
                             if(user.getLunchRestaurant().equals(mResponseN.getResults().get(i).getPlaceId())){
                                 Result restaurant = mResponseN.getResults().get(i);
-                                // - Firebase check
-                                restaurantExist(restaurant);
                                 // - Launch Detail activity
                                 Intent intent = new Intent(getActivity(), RestaurantDetailActivity.class);
                                 intent.putExtra("restaurant",  restaurant);
@@ -131,7 +125,6 @@ public class CoWorkerListFragment extends BaseFragment {
                        @Override
                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
                            for (DocumentSnapshot user : task.getResult()){
-                               // - Need a test to avoid to display currentUser and double account
                                users.add(user.toObject(User.class));
                                Log.e(TAG, "update user");
                            }

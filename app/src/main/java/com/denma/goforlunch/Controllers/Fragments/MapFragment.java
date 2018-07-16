@@ -140,8 +140,6 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
         for(int i = 0; i < mResponseN.getResults().size(); i++) {
             if (marker.getSnippet().equals(mResponseN.getResults().get(i).getPlaceId())) {
                 Result restaurant = mResponseN.getResults().get(i);
-                // - Firebase check
-                restaurantExist(restaurant);
                 // - Launch Detail activity
                 Intent intent = new Intent(getActivity(), RestaurantDetailActivity.class);
                 intent.putExtra("restaurant", restaurant);

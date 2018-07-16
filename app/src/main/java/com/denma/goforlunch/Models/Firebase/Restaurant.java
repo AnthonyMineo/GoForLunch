@@ -1,22 +1,19 @@
 package com.denma.goforlunch.Models.Firebase;
 
-import android.support.annotation.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class Restaurant {
     private String placeId;
     private int ranking;
-    @Nullable
-    private List<String> luncherName = new ArrayList<String>();
 
     public Restaurant(){}
 
-    public Restaurant(String placeId, int ranking, List<String> luncherName){
+    public Restaurant(String placeid){
+        this.placeId = placeid;
+    }
+
+    public Restaurant(String placeId, int ranking){
         this.placeId = placeId;
         this.ranking = ranking;
-        this.luncherName = luncherName;
     }
 
     // --- GETTERS ---
@@ -28,10 +25,6 @@ public class Restaurant {
         return ranking;
     }
 
-    @Nullable
-    public List<String> getLuncherName() {
-        return luncherName;
-    }
 
     // --- SETTERS ---
     public void setPlaceId(String placeId) {
@@ -42,7 +35,4 @@ public class Restaurant {
         this.ranking = ranking;
     }
 
-    public void setLuncherName(@Nullable List<String> luncherName) {
-        this.luncherName = luncherName;
-    }
 }

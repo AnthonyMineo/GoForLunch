@@ -8,7 +8,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -20,6 +19,7 @@ import com.denma.goforlunch.Models.Firebase.User;
 import com.denma.goforlunch.Models.GoogleAPI.Nearby.Result;
 import com.denma.goforlunch.R;
 import com.denma.goforlunch.Utils.ItemClickSupport;
+import com.denma.goforlunch.Utils.RestaurantHelper;
 import com.denma.goforlunch.Utils.UserHelper;
 import com.denma.goforlunch.Views.CoWorkerAdapter;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -40,6 +40,8 @@ public class RestaurantDetailActivity extends BaseActivity {
     ImageView restImage;
     @BindView(R.id.floating_button_go)
     FloatingActionButton floatingButton;
+    @BindView(R.id.restaurant_like)
+    ImageView restLike;
     @BindView(R.id.restaurant_name)
     TextView restName;
     @BindView(R.id.restaurant_ranking)
@@ -60,6 +62,7 @@ public class RestaurantDetailActivity extends BaseActivity {
     private User currentUser;
     public CoWorkerAdapter mCoworkerAdapter;
     private boolean imIn;
+    private boolean iLike;
 
     // --------------------
     // CREATION
@@ -150,6 +153,24 @@ public class RestaurantDetailActivity extends BaseActivity {
             }
         });
 
+        UserHelper.getUsersCollection().document(getCurrentUser().getUid()).collection("restLike").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                for(DocumentSnapshot docSnap : task.getResult()){
+                    if (docSnap.getId().equals(currentRest.getPlaceId())) {
+                        iLike = true;
+                    }
+                }
+                if (iLike){
+                    restLike.setBackgroundColor(getResources().getColor(R.color.colorGold));
+                } else {
+                    iLike = false;
+                    restLike.setBackgroundColor(0);
+                }
+
+            }
+        });
+
         // - Set the restaurant main image
         if(currentRest.getPhotos().size() > 0){
             String photoRef = currentRest.getPhotos().get(0).getPhotoReference();
@@ -174,36 +195,53 @@ public class RestaurantDetailActivity extends BaseActivity {
     public void updateUser() {
         users.clear();
 
-        // for the moment it just show all user
-        UserHelper.getUsersCollection().get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        for (DocumentSnapshot user : task.getResult()) {
-                            // - Need a test to avoid to display currentUser and double account
-                            users.add(user.toObject(User.class));
-                            Log.e(TAG, "update user");
+        RestaurantHelper.getRestaurantsCollection().document(currentRest.getPlaceId())
+                .collection("luncherId").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                for (DocumentSnapshot docSnap : task.getResult()) {
+                    UserHelper.getUser(docSnap.getId()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            users.add(task.getResult().toObject(User.class));
+                            mCoworkerAdapter.notifyDataSetChanged();
                         }
-                        mCoworkerAdapter.notifyDataSetChanged();
-                        Log.e(TAG, "notif done");
-                    }
-                });
+                    });
+                }
+            }
+        }).addOnFailureListener(this.onFailureListener());
     }
 
     @OnClick(R.id.floating_button_go)
     public void floatingButtonClick(){
         // - Style for floating button
         if(imIn){
-            floatingButton.setImageDrawable(getResources().getDrawable(R.drawable.baseline_check_circle_green_48));
-            UserHelper.updateLunch(getCurrentUser().getUid(), currentRest.getPlaceId()).addOnFailureListener(this.onFailureListener());
+            floatingButton.setImageDrawable(getResources().getDrawable(R.drawable.baseline_check_circle_grey_48));
+            UserHelper.updateLunch(getCurrentUser().getUid(), "").addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    RestaurantHelper.deleteLuncherId(currentRest.getPlaceId(), getCurrentUser().getUid());
+                }
+            }).addOnFailureListener(this.onFailureListener());
             imIn = false;
         } else {
-            floatingButton.setImageDrawable(getResources().getDrawable(R.drawable.baseline_check_circle_grey_48));
-            UserHelper.updateLunch(getCurrentUser().getUid(), "").addOnFailureListener(this.onFailureListener());
+            floatingButton.setImageDrawable(getResources().getDrawable(R.drawable.baseline_check_circle_green_48));
+            UserHelper.updateLunch(getCurrentUser().getUid(), currentRest.getPlaceId()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    RestaurantHelper.getRestaurantsCollection().get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            for(DocumentSnapshot docSnap : task.getResult()){
+                                RestaurantHelper.deleteLuncherId(docSnap.getId(), getCurrentUser().getUid());
+                            }
+                            RestaurantHelper.addLuncherId(currentRest.getPlaceId() , getCurrentUser().getUid());
+                        }
+                    });
+                }
+            }).addOnFailureListener(this.onFailureListener());
             imIn = true;
         }
-
-
     }
 
     @OnClick(R.id.restaurant_phone_call)
@@ -215,7 +253,26 @@ public class RestaurantDetailActivity extends BaseActivity {
 
     @OnClick(R.id.restaurant_like)
     public void likeClick(){
-        // soon !
+        if(iLike){
+            restLike.setBackgroundColor(0);
+            UserHelper.deleteLike(getCurrentUser().getUid(), currentRest.getPlaceId()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    RestaurantHelper.decRanking(currentRest.getPlaceId());
+                    iLike = false;
+                }
+            }).addOnFailureListener(this.onFailureListener());
+
+        } else {
+            restLike.setBackgroundColor(getResources().getColor(R.color.colorGold));
+            UserHelper.addLike(getCurrentUser().getUid(), currentRest.getPlaceId()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    RestaurantHelper.incRanking(currentRest.getPlaceId());
+                    iLike = true;
+                }
+            });
+        }
     }
 
     @OnClick(R.id.restaurant_website)
