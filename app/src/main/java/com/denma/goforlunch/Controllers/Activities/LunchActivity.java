@@ -85,7 +85,6 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
     private boolean mInitUI;
     private Disposable disposable;
     private ResponseN mResponseN;
-    private FirebaseUser currentUser;
 
     // --------------------
     // CREATION
@@ -127,12 +126,6 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
 
     public ResponseN getResponse(){
         return mResponseN;
-    }
-
-    @Nullable
-    @Override
-    public FirebaseUser getCurrentUser() {
-        return currentUser;
     }
 
     // --------------------

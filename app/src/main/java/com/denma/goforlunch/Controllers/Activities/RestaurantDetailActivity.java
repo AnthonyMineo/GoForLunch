@@ -203,8 +203,10 @@ public class RestaurantDetailActivity extends BaseActivity {
                     UserHelper.getUser(docSnap.getId()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            users.add(task.getResult().toObject(User.class));
-                            mCoworkerAdapter.notifyDataSetChanged();
+                            if(!task.getResult().getId().equals(currentUser.getUid())){
+                                users.add(task.getResult().toObject(User.class));
+                                mCoworkerAdapter.notifyDataSetChanged();
+                            }
                         }
                     });
                 }

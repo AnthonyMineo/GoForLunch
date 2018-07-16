@@ -152,6 +152,8 @@ public class RestaurantsListFragment extends BaseFragment {
                             Log.e(TAG, "NUUUUUUUUUUULLLLLLLLLLL");
                         }
 
+
+
                         // - Format Open hour
                         StringBuilder str = new StringBuilder(open);
                         str.insert(2, ":");

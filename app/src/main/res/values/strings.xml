@@ -24,4 +24,7 @@
 
     <!-- PERMISSIONS -->
     <string name="popup_title_permission_location_access">Cette application a besoin de permission pour fonctionner.</string>
+
+    <!-- RESTAURANT -->
+    <string name="opening_hours_status">Fermé !</string>
 </resources>

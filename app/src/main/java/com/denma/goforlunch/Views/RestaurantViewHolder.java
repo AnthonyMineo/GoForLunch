@@ -67,7 +67,13 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
         this.restMateNumber.setText("3");  // need a test from firebase data
 
         // - Set Opening hours
-        this.restOpeningHours.setText(restaurant.getOpening_hours()); // will change
+        if(restaurant.getOpening_hours() != null){
+            this.restOpeningHours.setText(restaurant.getOpening_hours());
+        } else {
+            this.restOpeningHours.setTextColor(context.getResources().getColor(R.color.colorError));
+            this.restOpeningHours.setText(R.string.opening_hours_status);
+        }
+
 
         // - Set Rank from friends opinion
         this.restRankImage.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_star_border_black_24dp)); // need a test from firebase data

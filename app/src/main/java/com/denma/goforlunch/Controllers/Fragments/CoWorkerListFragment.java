@@ -44,7 +44,6 @@ public class CoWorkerListFragment extends BaseFragment {
     private static final String TAG = "CoWorker_Fragment"; // - CoWorker Fragment ID for log
     private List<User> users;
     public CoWorkerAdapter mCoworkerAdapter;
-    private Result restaurant;
 
     // --------------------
     // CREATION
@@ -124,9 +123,11 @@ public class CoWorkerListFragment extends BaseFragment {
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                        @Override
                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                           for (DocumentSnapshot user : task.getResult()){
-                               users.add(user.toObject(User.class));
-                               Log.e(TAG, "update user");
+                            for (DocumentSnapshot user : task.getResult()){
+                                if(!user.getId().equals(mLunchActivity.getCurrentUser().getUid())){
+                                    users.add(user.toObject(User.class));
+                                    Log.e(TAG, "update user");
+                                }
                            }
                            mCoworkerAdapter.notifyDataSetChanged();
                            Log.e(TAG, "notif done");
