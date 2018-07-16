@@ -17,9 +17,6 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 
-            buildConfigField("String", "MAPS_API_KEY", "\"AIzaSyAkfkcCgx4XgzCLpbtWQleX4L0T2RCW394\"")
-            resValue("string", "MAPS_API_KEY", "AIzaSyAkfkcCgx4XgzCLpbtWQleX4L0T2RCW394")
-            buildConfigField("String", "PLACE_API_KEY", "\"AIzaSyANZfKREO18a_97keoiBvwovSwpTaHa6TE\"")
         }
         debug {
             // Use static values for incremental builds to ensure that
