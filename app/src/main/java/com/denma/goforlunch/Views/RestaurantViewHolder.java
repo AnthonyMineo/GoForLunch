@@ -2,6 +2,7 @@ package com.denma.goforlunch.Views;
 
 import android.content.Context;
 import android.location.Location;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 
 import android.util.Log;
@@ -11,8 +12,15 @@ import android.widget.TextView;
 
 import com.bumptech.glide.RequestManager;
 import com.denma.goforlunch.BuildConfig;
+import com.denma.goforlunch.Models.Firebase.Restaurant;
 import com.denma.goforlunch.Models.GoogleAPI.Nearby.Result;
 import com.denma.goforlunch.R;
+import com.denma.goforlunch.Utils.RestaurantHelper;
+import com.denma.goforlunch.Utils.UserHelper;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -44,7 +52,7 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
         ButterKnife.bind(this, itemView);
     }
 
-    public void updateWithRestaurant(Result restaurant, RequestManager glide, Context context, double currentLat, double currentLng){
+    public void updateWithRestaurant(final Result restaurant, RequestManager glide, final Context context, double currentLat, double currentLng){
         double targetLat = restaurant.getGeometry().getLocation().getLat();
         double targetLng = restaurant.getGeometry().getLocation().getLng();
         Location.distanceBetween(currentLat, currentLng, targetLat, targetLng, distanceTo);
@@ -64,7 +72,13 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
         this.restLocation.setText(restaurant.getVicinity());
 
         // - Set Mate number that already decide to eat at this restaurant
-        this.restMateNumber.setText("3");  // need a test from firebase data
+        RestaurantHelper.getRestaurantsCollection().document(restaurant.getPlaceId()).collection("luncherId").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                restMateNumber.setText("("+ String.valueOf(task.getResult().size()) + ")");
+            }
+        });
+
 
         // - Set Opening hours
         if(restaurant.getOpening_hours() != null){
@@ -74,9 +88,35 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
             this.restOpeningHours.setText(R.string.opening_hours_status);
         }
 
-
         // - Set Rank from friends opinion
-        this.restRankImage.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_star_border_black_24dp)); // need a test from firebase data
+        final int[] totalUsers = new int[1];
+        UserHelper.getUsersCollection().get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                totalUsers[0] = task.getResult().size();
+
+                RestaurantHelper.getRestaurant(restaurant.getPlaceId()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        Restaurant rest = task.getResult().toObject(Restaurant.class);
+                        int rank = rest.getRanking();
+                        if(rank == 0){
+                            restRankImage.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_0star_border_black_24dp)); // no Star
+                        } else if (rank < totalUsers[0] * 0.2){
+                            restRankImage.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_1star_border_black_24dp)); // one Star
+                        }  else if (rank < totalUsers[0] * 0.4){
+                            restRankImage.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_2star_border_black_24dp)); // two Star
+                        } else if (rank < totalUsers[0] * 0.6){
+                            restRankImage.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_3star_border_black_24dp)); // three Star
+                        } else if (rank < totalUsers[0] * 0.8){
+                            restRankImage.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_4star_border_black_24dp)); // four Star
+                        }  else {
+                            restRankImage.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_5star_border_black_24dp)); // five Star
+                        }
+                    }
+                });
+            }
+        });
 
         // - Set Main Photo if it exist
         if(restaurant.getPhotos().size() > 0){

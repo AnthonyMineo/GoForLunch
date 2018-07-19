@@ -89,7 +89,7 @@ public class CoWorkerListFragment extends BaseFragment {
         // - Reset list
         this.users = new ArrayList<>();
         // - Create adapter passing the list of Restaurants
-        this.mCoworkerAdapter = new CoWorkerAdapter(this.users, Glide.with(this));
+        this.mCoworkerAdapter = new CoWorkerAdapter(this.users, Glide.with(this), false);
         // - Attach the adapter to the recyclerview to populate items
         this.recyclerView.setAdapter(this.mCoworkerAdapter);
         // - Set layout manager to position the items
@@ -105,7 +105,7 @@ public class CoWorkerListFragment extends BaseFragment {
                         User user = mCoworkerAdapter.getCoWorker(position);
                         // - Search the restaurant chosen by selected user
                         for(int i = 0; i < mResponseN.getResults().size(); i++){
-                            if(user.getLunchRestaurant().equals(mResponseN.getResults().get(i).getPlaceId())){
+                            if(user.getLunchRestaurantId().equals(mResponseN.getResults().get(i).getPlaceId())){
                                 Result restaurant = mResponseN.getResults().get(i);
                                 // - Launch Detail activity
                                 Intent intent = new Intent(getActivity(), RestaurantDetailActivity.class);

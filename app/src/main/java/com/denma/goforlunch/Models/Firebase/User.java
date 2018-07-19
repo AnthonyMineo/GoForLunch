@@ -2,21 +2,25 @@ package com.denma.goforlunch.Models.Firebase;
 
 import android.support.annotation.Nullable;
 
+
 public class User {
     private String uid;
     private String username;
     private String mail;
     @Nullable private String urlPicture;
-    private String lunchRestaurant;
+    private String lunchRestaurantId;
+    private String lunchRestaurantName;
+
 
     public User(){}
 
-    public User(String uid, String username, String mail, String urlPicture, String lunchRestaurant){
+    public User(String uid, String username, String mail, String urlPicture, String lunchRestaurantId, String lunchRestaurantName){
         this.uid = uid;
         this.username = username;
         this.urlPicture = urlPicture;
         this.mail = mail;
-        this.lunchRestaurant = lunchRestaurant;
+        this.lunchRestaurantId = lunchRestaurantId;
+        this.lunchRestaurantName = lunchRestaurantName;
     }
 
     // --- GETTERS ---
@@ -25,7 +29,10 @@ public class User {
     public String getMail() { return mail; }
     @Nullable
     public String getUrlPicture() { return urlPicture; }
-    public String getLunchRestaurant() { return lunchRestaurant; }
+    public String getLunchRestaurantId() { return lunchRestaurantId; }
+    public String getLunchRestaurantName() {
+        return lunchRestaurantName;
+    }
 
     // --- SETTERS ---
 
@@ -41,7 +48,10 @@ public class User {
     public void setUrlPicture(@Nullable String urlPicture) {
         this.urlPicture = urlPicture;
     }
-    public void setLunchRestaurant(String lunchRestaurant) {
-        this.lunchRestaurant = lunchRestaurant;
+    public void setLunchRestaurantId(String lunchRestaurant) {
+        this.lunchRestaurantId = lunchRestaurant;
+    }
+    public void setLunchRestaurantName(String lunchRestaurantName) {
+        this.lunchRestaurantName = lunchRestaurantName;
     }
 }

@@ -179,7 +179,6 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
                 break;
             case R.id.menu_drawer_item_log_out:
                 //Do something about log out
-                this.disconnectUser();
                 this.finish();
                 break;
             default:
@@ -392,8 +391,9 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
     protected void createRestaurantInFireStore(Result result){
         String placeId = result.getPlaceId();
         int ranking = 0;
+        String placeName = result.getName();
 
-        RestaurantHelper.createRestaurant(placeId, ranking).addOnFailureListener(this.onFailureListener());
+        RestaurantHelper.createRestaurant(placeId, ranking, placeName).addOnFailureListener(this.onFailureListener());
         Log.e("AAAAAAAAAAA", "restaurant create");
     }
 

@@ -63,7 +63,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="13sp"
-                    android:text="(3)" />
+                    android:text="(0)" />
             </LinearLayout>
 
             <TextView
@@ -78,10 +78,12 @@
 
             <ImageView
                 android:id="@+id/fragment_recycle_item_rank"
-                android:layout_width="20dp"
+                android:layout_width="100dp"
                 android:layout_height="20dp"
+                android:scaleType="fitEnd"
                 android:layout_alignParentRight="true"
-                android:layout_below="@id/fragment_recycle_item_location" />
+                android:layout_below="@id/fragment_recycle_item_location"
+                android:src="@drawable/ic_0star_border_black_24dp"/>
 
         </RelativeLayout>
 
@@ -92,7 +94,7 @@
             android:layout_margin="5dp"
             android:layout_gravity="center"
             android:scaleType="centerCrop"
-            android:src="@drawable/baseline_perm_identity_black_48" />
+            android:src="@drawable/ic_place_image_not_found" />
     </LinearLayout>
 
     <FrameLayout

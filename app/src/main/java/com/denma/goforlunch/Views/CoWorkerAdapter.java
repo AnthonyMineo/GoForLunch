@@ -17,12 +17,14 @@ public class CoWorkerAdapter extends RecyclerView.Adapter<CoWorkerViewHolder>  {
     // FOR DATA
     private List<User> users;
     private RequestManager glide;
+    private boolean isFromDetail;
     private Context mContext;
 
     // CONSTRUCTOR
-    public CoWorkerAdapter(List<User> users, RequestManager glide) {
+    public CoWorkerAdapter(List<User> users, RequestManager glide, boolean isFromDetail) {
         this.users = users;
         this.glide = glide;
+        this.isFromDetail = isFromDetail;
     }
 
     @Override
@@ -38,7 +40,7 @@ public class CoWorkerAdapter extends RecyclerView.Adapter<CoWorkerViewHolder>  {
     // UPDATE VIEW HOLDER WITH A COWORKER
     @Override
     public void onBindViewHolder(CoWorkerViewHolder viewHolder, int position) {
-        viewHolder.updateWithCoWorker(this.users.get(position), this.glide, this.mContext);
+        viewHolder.updateWithCoWorker(this.users.get(position), this.glide, this.mContext, isFromDetail);
     }
 
     // RETURN THE TOTAL COUNT OF ITEMS IN THE LIST

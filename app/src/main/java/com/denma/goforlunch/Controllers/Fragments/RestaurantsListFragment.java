@@ -144,16 +144,6 @@ public class RestaurantsListFragment extends BaseFragment {
                         String open = p.getOpen().getTime();
                         String close = p.getClose().getTime();
 
-                        // need a test to change format if it's close
-                        if(open.equals("")){
-                            Log.e(TAG, "OOOOOKKKKKK");
-                        }
-                        if(open == null){
-                            Log.e(TAG, "NUUUUUUUUUUULLLLLLLLLLL");
-                        }
-
-
-
                         // - Format Open hour
                         StringBuilder str = new StringBuilder(open);
                         str.insert(2, ":");
