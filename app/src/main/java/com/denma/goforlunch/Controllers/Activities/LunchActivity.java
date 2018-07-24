@@ -1,5 +1,6 @@
 package com.denma.goforlunch.Controllers.Activities;
 
+import android.app.SearchManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -83,6 +84,7 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
     private LatLng focusPos;
     private boolean mServiceState;
     private boolean mInitUI;
+    private boolean fireBaseProcess;
     private Disposable disposable;
     private ResponseN mResponseN;
 
@@ -94,12 +96,15 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.mInitUI = false;
+        this.fireBaseProcess = true;
 
         this.configureToolBar();
         this.configureDrawerLayout();
         this.configureNavigationView();
         this.configureBroadcastReceiver();
         this.configureLocationService();
+
+
         Log.e(TAG, "onCreate");
     }
 
@@ -399,14 +404,17 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
 
     // - Test if restaurant already exist in firebase, if not create it
     protected void restaurantExist(final Result result){
-        RestaurantHelper.getRestaurantsCollection().document(result.getPlaceId()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if(!task.getResult().exists()) {
-                    createRestaurantInFireStore(result);
+        if(fireBaseProcess){
+            RestaurantHelper.getRestaurantsCollection().document(result.getPlaceId()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if(!task.getResult().exists()) {
+                        createRestaurantInFireStore(result);
+                    }
                 }
-            }
-        });
+            });
+        }
+
     }
 
     // - Configure Activity UI and show the mapFragment first
@@ -479,6 +487,8 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
     @Override
     protected void onDestroy() {
         Log.e(TAG, "onDestroy");
+        this.mResponseN = null;
+        this.fireBaseProcess = false;
         this.disposeWhenDestroy();
         this.disconnectUser();
         // - Stop the location service

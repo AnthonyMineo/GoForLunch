@@ -4,6 +4,8 @@
 
     <string name="facebook_connexion">Sign in with Facebook</string>
     <string name="google_connexion">Sign in with Google</string>
+    <string name="twitter_connexion">Sign in with Twitter</string>
+    <string name="email_connexion">Sign in with E-mail</string>
 
     <!-- MAIN ACTIVITY -->
     <string name="error_not_connected">Vous devez vous connecter !</string>
@@ -22,9 +24,21 @@
     <string name="facebook_application_id" translatable="false">224193358312077</string>
     <string name="facebook_login_protocol_scheme" translatable="false" tools:ignore="UnusedResources">fb224193358312077</string>
 
+    <!-- TWITTER PURPOSE -->
+    <string name="twitter_consumer_key" translatable="false">oLAEpwjxRHOqctPdBEha4lYtU</string>
+    <string name="twitter_consumer_secret" translatable="false"> mO4Zon7idHAapiLIJnyNyoQqr55oALSbrxClWev9SRr0maj9NO</string>
+
+
     <!-- PERMISSIONS -->
     <string name="popup_title_permission_location_access">Cette application a besoin de permission pour fonctionner.</string>
 
     <!-- RESTAURANT -->
     <string name="opening_hours_status">Fermé !</string>
+
+    <!-- SEARCH -->
+    <string name="search_restaurant_list_hint">Recherche restaurants</string>
+
+    <!-- COWORKER -->
+    <string name="coworker_restaurant_choice_decided">is eating at</string>
+    <string name="coworker_restaurant_choice_not_yet">hasn\'t decided yet</string>
 </resources>

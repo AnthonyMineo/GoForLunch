@@ -30,24 +30,39 @@ public class CoWorkerViewHolder extends RecyclerView.ViewHolder {
         ButterKnife.bind(this, itemView);
     }
 
-    public void updateWithCoWorker(final User user, RequestManager glide, Context context, boolean isFromDetail) {
+    public void updateWithCoWorker(final User user, RequestManager glide, final Context context, boolean isFromDetail) {
 
         // - Set User Image
-        try{
-            glide.load(user.getUrlPicture()).apply(RequestOptions.circleCropTransform()).into(userImage);
-        } catch (Exception e){
-            e.printStackTrace();
+        if(user.getUrlPicture() != null){
+            try{
+                glide.load(user.getUrlPicture()).apply(RequestOptions.circleCropTransform()).into(userImage);
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+        } else {
+            try{
+                glide.load("https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png").apply(RequestOptions.circleCropTransform()).into(userImage);
+            } catch (Exception e){
+                e.printStackTrace();
+            }
         }
 
+
         // - Set User Choice
-        if(isFromDetail == true){
+        if(isFromDetail){
             this.userChoice.setText(user.getUsername() + " is joining !" );
         } else {
             UserHelper.getUser(user.getUid()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                     User fireUser = task.getResult().toObject(User.class);
-                    userChoice.setText(fireUser.getUsername() + " is eating at " + fireUser.getLunchRestaurantName());
+                    if(fireUser.getLunchRestaurantName() != ""){
+                        userChoice.setText(fireUser.getUsername() + " " + context.getString(R.string.coworker_restaurant_choice_decided)+ " " + fireUser.getLunchRestaurantName());
+                    } else {
+                        userChoice.setTextColor(context.getResources().getColor(R.color.colorGrey));
+                        userChoice.setText(fireUser.getUsername() + " " + context.getString(R.string.coworker_restaurant_choice_not_yet));
+                    }
+
                 }
             });
         }

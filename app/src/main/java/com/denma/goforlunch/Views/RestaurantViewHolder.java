@@ -84,8 +84,8 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
         if(restaurant.getOpening_hours() != null){
             this.restOpeningHours.setText(restaurant.getOpening_hours());
         } else {
-            this.restOpeningHours.setTextColor(context.getResources().getColor(R.color.colorError));
             this.restOpeningHours.setText(R.string.opening_hours_status);
+            this.restOpeningHours.setTextColor(context.getResources().getColor(R.color.colorError));
         }
 
         // - Set Rank from friends opinion

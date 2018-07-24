@@ -16,6 +16,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <!-- Main Activity -->
+
         <activity android:name=".Controllers.Activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -23,6 +26,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Lunch Activity -->
         <activity
             android:name=".Controllers.Activities.LunchActivity"
             android:label="Lunch"
@@ -39,12 +44,16 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/MAPS_API_KEY" />
 
+        <!-- Location Service -->
         <service
             android:name=".Utils.LocationService"
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name=".Controllers.Activities.RestaurantDetailActivity"></activity>
+        <!-- Restaurant Detail Activity -->
+        <activity android:name=".Controllers.Activities.RestaurantDetailActivity">
+
+        </activity>
     </application>
 
 </manifest>

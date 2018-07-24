@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
+import android.util.Log;
 
 import com.denma.goforlunch.R;
 import com.denma.goforlunch.Utils.UserHelper;
@@ -15,6 +16,15 @@ import com.firebase.ui.auth.IdpResponse;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.twitter.sdk.android.core.Callback;
+import com.twitter.sdk.android.core.DefaultLogger;
+import com.twitter.sdk.android.core.Result;
+import com.twitter.sdk.android.core.Twitter;
+import com.twitter.sdk.android.core.TwitterAuthConfig;
+import com.twitter.sdk.android.core.TwitterConfig;
+import com.twitter.sdk.android.core.TwitterException;
+import com.twitter.sdk.android.core.TwitterSession;
+import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
 import java.util.Arrays;
 
@@ -75,6 +85,19 @@ public class MainActivity extends BaseActivity {
         // - Launch Sign-In with Google Activity when user clicked on button
         this.startGoogleSignInActivity();
     }
+
+    @OnClick(R.id.main_activity_button_twitter)
+    public void onClickLogin3Button() {
+        // - Launch Sign-In with Twitter Activity when user clicked on button
+        this.startTwitterSignInActivity();
+    }
+
+    @OnClick(R.id.main_activity_button_email)
+    public void onClickLogin4Button() {
+        // - Launch Sign-In with E-mail Activity when user clicked on button
+        this.startEmailSignInActivity();
+    }
+
 
     // - Show Snack Bar with a message
     private void showSnackBar(CoordinatorLayout coordinatorLayout, String message){
@@ -176,6 +199,32 @@ public class MainActivity extends BaseActivity {
                 RC_SIGN_IN);
     }
 
+    // - Launch Sign-In with Twitter Activity
+    private void startTwitterSignInActivity(){
+        startActivityForResult(
+                AuthUI.getInstance()
+                        .createSignInIntentBuilder()
+                        .setAvailableProviders(
+                                Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.TWITTER_PROVIDER).build())) //TWITTER
+                        .setIsSmartLockEnabled(true, true)
+                        .setLogo(R.drawable.ic_logo_auth)
+                        .build(),
+                RC_SIGN_IN);
+    }
+
+    // - Launch Sign-In with E-mail Activity
+    private void startEmailSignInActivity(){
+        startActivityForResult(
+                AuthUI.getInstance()
+                        .createSignInIntentBuilder()
+                        .setAvailableProviders(
+                                Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build())) //EMAIL
+                        .setIsSmartLockEnabled(true, true)
+                        .setLogo(R.drawable.ic_logo_auth)
+                        .build(),
+                RC_SIGN_IN);
+    }
+
     // --------------------
     // ERROR HANDLER
     // --------------------
@@ -187,6 +236,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         // - Handle SignIn Activity response on activity result
         this.handleResponseAfterSignIn(requestCode, resultCode, data);
     }

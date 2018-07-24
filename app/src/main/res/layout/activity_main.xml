@@ -52,12 +52,13 @@
                 android:id="@+id/main_activity_button_facebook"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:text="@string/facebook_connexion"
                 android:textColor="#fff"
                 android:textSize="@dimen/default_text_size"
-                android:background="@drawable/button_radius_primary_color"
+                android:background="@drawable/button_radius_primary_dark_color"
                 android:drawableLeft="@drawable/ic_facebook"
-                android:layout_marginBottom="@dimen/default_large_margin"
+                android:layout_marginBottom="@dimen/default_margin"
                 android:layout_marginLeft="@dimen/button_margin"
                 android:layout_marginRight="@dimen/button_margin"
                 android:padding="@dimen/default_large_margin" />
@@ -67,11 +68,44 @@
                 android:id="@+id/main_activity_button_google"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:text="@string/google_connexion"
                 android:textColor="#fff"
                 android:textSize="@dimen/default_text_size"
                 android:background="@drawable/button_radius_accent_color"
                 android:drawableLeft="@drawable/ic_google"
+                android:layout_marginBottom="@dimen/default_margin"
+                android:layout_marginLeft="@dimen/button_margin"
+                android:layout_marginRight="@dimen/button_margin"
+                android:padding="@dimen/default_large_margin"/>
+
+            <!-- BUTTON LOGIN TWITTER -->
+            <Button
+                android:id="@+id/main_activity_button_twitter"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/twitter_connexion"
+                android:textColor="#fff"
+                android:textSize="@dimen/default_text_size"
+                android:background="@drawable/button_radius_primary_color"
+                android:drawableLeft="@drawable/ic_twitter"
+                android:layout_marginLeft="@dimen/button_margin"
+                android:layout_marginRight="@dimen/button_margin"
+                android:layout_marginBottom="@dimen/default_margin"
+                android:padding="@dimen/default_large_margin"/>
+
+            <!-- BUTTON LOGIN TWITTER -->
+            <Button
+                android:id="@+id/main_activity_button_email"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/email_connexion"
+                android:textColor="#fff"
+                android:textSize="@dimen/default_text_size"
+                android:background="@drawable/button_radius_orange_color"
+                android:drawableLeft="@drawable/ic_email"
                 android:layout_marginLeft="@dimen/button_margin"
                 android:layout_marginRight="@dimen/button_margin"
                 android:padding="@dimen/default_large_margin"/>

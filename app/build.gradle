@@ -76,6 +76,9 @@ dependencies {
     // FACEBOOK LOGIN SUPPORT
     implementation 'com.facebook.android:facebook-android-sdk:[4,5)'
 
+    // TWITTER LOGIN SUPPORT
+    implementation 'com.twitter.sdk.android:twitter-core:3.1.1'
+
     // GOOGLE MAPS
     implementation 'com.google.android.gms:play-services-maps:11.8.0'
     // GOOGLE PLACES
