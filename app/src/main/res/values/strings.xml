@@ -41,4 +41,5 @@
     <!-- COWORKER -->
     <string name="coworker_restaurant_choice_decided">is eating at</string>
     <string name="coworker_restaurant_choice_not_yet">hasn\'t decided yet</string>
+    <string name="title_activity_main2">Main2Activity</string>
 </resources>

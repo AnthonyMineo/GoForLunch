@@ -40,6 +40,7 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
 
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
+    private LocationCallback mLocationCallback;
     private FusedLocationProviderClient mFusedLocationClient;
 
     private double currentLat;
@@ -64,6 +65,18 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         mGoogleApiClient.connect();
 
+        mLocationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                for (Location location : locationResult.getLocations()) {
+                    // - Set location data into local variables
+                    setLocationData(location);
+                    // - Send them through a broadcast (actually only LunchActivity can get it)
+                    sendBroadcastToActivity(currentLat, currentLng);
+                }
+            }
+        };
+
         // - Allow the service to be restart if the OS suppress it due to a lack of memory
         return START_STICKY;
     }
@@ -81,17 +94,7 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
             if (EasyPermissions.hasPermissions(this, PERMS2)){
                 // - Request location with a specified frequency to update current location
                 mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-                mFusedLocationClient.requestLocationUpdates(mLocationRequest, new LocationCallback(){
-                    @Override
-                    public void onLocationResult(LocationResult locationResult) {
-                        for (Location location : locationResult.getLocations()) {
-                            // - Set location data into local variables
-                            setLocationData(location);
-                            // - Send them through a broadcast (actually only LunchActivity can get it)
-                            sendBroadcastToActivity(currentLat, currentLng);
-                        }
-                    };
-                }, null);
+                mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, null);
 
                 Log.e(TAG, "Connected to Google API");
             }
@@ -136,5 +139,23 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         Log.e(TAG, "Failed to connect to Google API");
 
+    }
+
+    @Override
+    public void onDestroy() {
+        stopServiceLocation();
+        super.onDestroy();
+        Log.e(TAG, "On Destroy");
+    }
+
+    @SuppressLint("MissingPermission")
+    public void stopServiceLocation(){
+        // - Permissions check
+        if (EasyPermissions.hasPermissions(this, PERMS)) {
+            if (EasyPermissions.hasPermissions(this, PERMS2)) {
+                mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+                mGoogleApiClient.disconnect();
+            }
+        }
     }
 }

@@ -51,9 +51,8 @@
             android:exported="true" />
 
         <!-- Restaurant Detail Activity -->
-        <activity android:name=".Controllers.Activities.RestaurantDetailActivity">
-
-        </activity>
+        <activity android:name=".Controllers.Activities.RestaurantDetailActivity" />
+        <activity android:name=".Controllers.Activities.SettingsActivity"></activity>
     </application>
 
 </manifest>

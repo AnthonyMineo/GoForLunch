@@ -1,6 +1,7 @@
 package com.denma.goforlunch.Views;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -79,10 +80,10 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
             }
         });
 
-
         // - Set Opening hours
         if(restaurant.getOpening_hours() != null){
             this.restOpeningHours.setText(restaurant.getOpening_hours());
+            this.restOpeningHours.setTextColor(context.getResources().getColor(R.color.colorText));
         } else {
             this.restOpeningHours.setText(R.string.opening_hours_status);
             this.restOpeningHours.setTextColor(context.getResources().getColor(R.color.colorError));

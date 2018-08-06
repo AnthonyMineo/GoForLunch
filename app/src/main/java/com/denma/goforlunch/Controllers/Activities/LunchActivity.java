@@ -1,6 +1,5 @@
 package com.denma.goforlunch.Controllers.Activities;
 
-import android.app.SearchManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -28,12 +27,14 @@ import android.widget.Toast;
 import com.denma.goforlunch.Controllers.Fragments.BaseFragment;
 import com.denma.goforlunch.Controllers.Fragments.CoWorkerListFragment;
 import com.denma.goforlunch.Controllers.Fragments.RestaurantsListFragment;
+import com.denma.goforlunch.Models.Firebase.User;
 import com.denma.goforlunch.Models.GoogleAPI.Nearby.ResponseN;
 import com.denma.goforlunch.Models.GoogleAPI.Nearby.Result;
 import com.denma.goforlunch.R;
 import com.denma.goforlunch.Utils.GoogleMapsStream;
 import com.denma.goforlunch.Utils.LocationService;
 import com.denma.goforlunch.Utils.RestaurantHelper;
+import com.denma.goforlunch.Utils.UserHelper;
 import com.denma.goforlunch.Views.PageAdapter;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -52,7 +53,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 
 import io.reactivex.disposables.Disposable;
@@ -85,6 +85,7 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
     private boolean mServiceState;
     private boolean mInitUI;
     private boolean fireBaseProcess;
+    private boolean currentLunchSet;
     private Disposable disposable;
     private ResponseN mResponseN;
 
@@ -97,6 +98,7 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
         super.onCreate(savedInstanceState);
         this.mInitUI = false;
         this.fireBaseProcess = true;
+        this.currentLunchSet = false;
 
         this.configureToolBar();
         this.configureDrawerLayout();
@@ -178,6 +180,7 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
         switch (id){
             case R.id.menu_drawer_item_lunch :
                 //Do something about your lunch
+                showCurrentLunch();
                 break;
             case R.id.menu_drawer_item_settings:
                 //Do something about settings
@@ -265,6 +268,33 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
         }
     }
 
+    // - Display current user lunch
+    private void showCurrentLunch(){
+        UserHelper.getUsersCollection().document(this.getCurrentUser().getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                User user = task.getResult().toObject(User.class);
+                // - Search the restaurant chosen by selected user
+                for(int i = 0; i < mResponseN.getResults().size(); i++){
+                    if(user.getLunchRestaurantId().equals(mResponseN.getResults().get(i).getPlaceId())){
+                        Result restaurant = mResponseN.getResults().get(i);
+                        // - Launch Detail activity
+                        Intent intent = new Intent(LunchActivity.this, RestaurantDetailActivity.class);
+                        intent.putExtra("restaurant",  restaurant);
+                        startActivity(intent);
+                        currentLunchSet = true;
+                    }
+                }
+                showMessage();
+            }
+        });
+    }
+
+    private void showMessage(){
+        if(!currentLunchSet)
+            Toast.makeText(this, "You haven't decided yet", Toast.LENGTH_SHORT).show();
+    }
+
     // - Decide how the search should work depending on viewpager's current fragment display
     private void chooseSearchEffect(){
         int position = pager.getCurrentItem();
@@ -297,10 +327,10 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
             startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
         } catch (GooglePlayServicesRepairableException e) {
             // - Handle the error
-            Toast.makeText(this, "GooglePlayServicesRepairableException", Toast.LENGTH_SHORT);
+            Toast.makeText(this, "GooglePlayServicesRepairableException", Toast.LENGTH_SHORT).show();
         } catch (GooglePlayServicesNotAvailableException e) {
             // - Handle the error.
-            Toast.makeText(this, "GooglePlayServicesNotAvailableException", Toast.LENGTH_SHORT);
+            Toast.makeText(this, "GooglePlayServicesNotAvailableException", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -337,7 +367,7 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
     private void configureLocationService(){
         if(checkGooglePlayServices() && !mServiceState){
             // - Start location Service
-            Intent intent = new Intent(this, LocationService.class);
+            Intent intent = new Intent(LunchActivity.this, LocationService.class);
             startService(intent);
             // - Service is active now !
             mServiceState = true;
@@ -486,16 +516,16 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
 
     @Override
     protected void onDestroy() {
-        Log.e(TAG, "onDestroy");
         this.mResponseN = null;
         this.fireBaseProcess = false;
         this.disposeWhenDestroy();
         this.disconnectUser();
         // - Stop the location service
-        stopService(new Intent(this, LocationService.class));
+        stopService(new Intent(LunchActivity.this, LocationService.class));
         // - Service is off now
         mServiceState = false;
         super.onDestroy();
+        Log.e(TAG, "onDestroy");
     }
 
     @Override
