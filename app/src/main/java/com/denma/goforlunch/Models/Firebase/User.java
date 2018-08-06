@@ -2,8 +2,10 @@ package com.denma.goforlunch.Models.Firebase;
 
 import android.support.annotation.Nullable;
 
+import java.io.Serializable;
 
-public class User {
+
+public class User implements Serializable{
     private String uid;
     private String username;
     private String mail;

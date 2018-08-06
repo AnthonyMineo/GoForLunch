@@ -6,20 +6,18 @@
 
     <item android:title="">
         <menu>
-            <group android:checkableBehavior="single">
-                <item
-                    android:id="@+id/menu_drawer_item_lunch"
-                    android:icon="@drawable/baseline_local_dining_white_48"
-                    android:title="YOUR LUNCH" />
-                <item
-                    android:id="@+id/menu_drawer_item_settings"
-                    android:icon="@drawable/baseline_settings_white_48"
-                    android:title="SETTINGS" />
-                <item
-                    android:id="@+id/menu_drawer_item_log_out"
-                    android:icon="@drawable/baseline_power_settings_new_white_48"
-                    android:title="LOGOUT" />
-            </group>
+            <item
+                android:id="@+id/menu_drawer_item_lunch"
+                android:icon="@drawable/baseline_local_dining_white_48"
+                android:title="YOUR LUNCH" />
+            <item
+                android:id="@+id/menu_drawer_item_settings"
+                android:icon="@drawable/baseline_settings_white_48"
+                android:title="SETTINGS" />
+            <item
+                android:id="@+id/menu_drawer_item_log_out"
+                android:icon="@drawable/baseline_power_settings_new_white_48"
+                android:title="LOGOUT" />
         </menu>
     </item>
 

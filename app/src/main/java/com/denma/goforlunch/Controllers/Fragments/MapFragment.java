@@ -113,7 +113,12 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
 
         // - Change camera to currentPosition
         this.currentPosition = new LatLng(currentLat, currentLng);
-        changeFocusPosition(currentPosition);
+        // - Allow us to handle user's selection from Place autocomplete
+        if(mLunchActivity.getFocusPos() != null){
+            changeFocusPosition(mLunchActivity.getFocusPos());
+        } else {
+            changeFocusPosition(currentPosition);
+        }
 
         if (mResponseN != null){
             // - Display nearby restaurant marker
@@ -126,6 +131,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
     public boolean onMyLocationButtonClick() {
         // Return false so that we don't consume the event and the default behavior still occurs
         // The camera animates to the user's current position.
+        mLunchActivity.setFocusPos(currentPosition);
         return false;
     }
 
@@ -137,6 +143,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
     @Override
     public boolean onMarkerClick(Marker marker) {
         Log.e(TAG, "markerOnClick");
+        mLunchActivity.setFocusPos(marker.getPosition());
         for(int i = 0; i < mResponseN.getResults().size(); i++) {
             if (marker.getSnippet().equals(mResponseN.getResults().get(i).getPlaceId())) {
                 Result restaurant = mResponseN.getResults().get(i);
@@ -208,10 +215,10 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
         if (mMapView != null) {
             mMapView.onResume();
         }
-        Log.e(TAG, "onResume");
         // - Allow us to handle user's selection from Place autocomplete
-       if(mLunchActivity.getFocusPos() != null)
+        if(mLunchActivity.getFocusPos() != null && mMap != null)
             changeFocusPosition(mLunchActivity.getFocusPos());
+        Log.e(TAG, "onResume");
     }
 
     @Override
@@ -226,7 +233,6 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
         if (mMapView != null) {
             try {
                 mMapView.onDestroy();
@@ -235,6 +241,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
             }
         }
         Log.e(TAG, "onDestroy");
+        super.onDestroy();
     }
 
     @Override

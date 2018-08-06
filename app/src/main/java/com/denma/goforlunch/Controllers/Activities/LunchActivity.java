@@ -3,15 +3,12 @@ package com.denma.goforlunch.Controllers.Activities;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-
 import android.content.IntentFilter;
-
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
-
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
@@ -26,6 +23,7 @@ import android.widget.Toast;
 
 import com.denma.goforlunch.Controllers.Fragments.BaseFragment;
 import com.denma.goforlunch.Controllers.Fragments.CoWorkerListFragment;
+import com.denma.goforlunch.Controllers.Fragments.MapFragment;
 import com.denma.goforlunch.Controllers.Fragments.RestaurantsListFragment;
 import com.denma.goforlunch.Models.Firebase.User;
 import com.denma.goforlunch.Models.GoogleAPI.Nearby.ResponseN;
@@ -36,25 +34,20 @@ import com.denma.goforlunch.Utils.LocationService;
 import com.denma.goforlunch.Utils.RestaurantHelper;
 import com.denma.goforlunch.Utils.UserHelper;
 import com.denma.goforlunch.Views.PageAdapter;
-
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
-
 import com.google.android.gms.common.api.Status;
-
 import com.google.android.gms.location.places.Place;
-
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
-
-import com.denma.goforlunch.Controllers.Fragments.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 
+import butterknife.BindView;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
 
@@ -63,7 +56,8 @@ import io.reactivex.observers.DisposableObserver;
 public class LunchActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     // FOR DESIGN
-    private Toolbar toolbar;
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private TabLayout tabs;
@@ -88,6 +82,7 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
     private boolean currentLunchSet;
     private Disposable disposable;
     private ResponseN mResponseN;
+    private User currentUser;
 
     // --------------------
     // CREATION
@@ -105,7 +100,7 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
         this.configureNavigationView();
         this.configureBroadcastReceiver();
         this.configureLocationService();
-
+        this.configureCurrentUser();
 
         Log.e(TAG, "onCreate");
     }
@@ -138,6 +133,10 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
     // --------------------
     // SETTERS
     // --------------------
+
+    public void setFocusPos(LatLng focusPos) {
+        this.focusPos = focusPos;
+    }
 
     // --------------------
     // MENU
@@ -184,6 +183,7 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
                 break;
             case R.id.menu_drawer_item_settings:
                 //Do something about settings
+                startSettingsActivity();
                 break;
             case R.id.menu_drawer_item_log_out:
                 //Do something about log out
@@ -202,7 +202,6 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
 
     // - Configure Toolbar
     private void configureToolBar() {
-        this.toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
     }
 
@@ -268,29 +267,28 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
         }
     }
 
-    // - Display current user lunch
-    private void showCurrentLunch(){
+    private void configureCurrentUser(){
         UserHelper.getUsersCollection().document(this.getCurrentUser().getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                User user = task.getResult().toObject(User.class);
-                // - Search the restaurant chosen by selected user
-                for(int i = 0; i < mResponseN.getResults().size(); i++){
-                    if(user.getLunchRestaurantId().equals(mResponseN.getResults().get(i).getPlaceId())){
-                        Result restaurant = mResponseN.getResults().get(i);
-                        // - Launch Detail activity
-                        Intent intent = new Intent(LunchActivity.this, RestaurantDetailActivity.class);
-                        intent.putExtra("restaurant",  restaurant);
-                        startActivity(intent);
-                        currentLunchSet = true;
-                    }
-                }
-                showMessage();
+                currentUser = task.getResult().toObject(User.class);
             }
         });
     }
 
-    private void showMessage(){
+    // - Display current user lunch
+    private void showCurrentLunch(){
+        // - Search the restaurant chosen by current user
+        for(int i = 0; i < mResponseN.getResults().size(); i++){
+            if(currentUser.getLunchRestaurantId().equals(mResponseN.getResults().get(i).getPlaceId())){
+                Result restaurant = mResponseN.getResults().get(i);
+                // - Launch Detail activity
+                Intent intent = new Intent(LunchActivity.this, RestaurantDetailActivity.class);
+                intent.putExtra("restaurant",  restaurant);
+                startActivity(intent);
+                currentLunchSet = true;
+            }
+        }
         if(!currentLunchSet)
             Toast.makeText(this, "You haven't decided yet", Toast.LENGTH_SHORT).show();
     }
@@ -467,6 +465,12 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
         if(this.mMapFragment == null) this.mMapFragment = MapFragment.newInstance();
     }
 
+    private void startSettingsActivity(){
+        Intent intent = new Intent(LunchActivity.this, SettingsActivity.class);
+        intent.putExtra("currentUser", currentUser);
+        startActivity(intent);
+    }
+
     // --------------------
     // ERROR HANDLER
     // --------------------
@@ -530,6 +534,7 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
 
     @Override
     protected void onResume() {
+        configureCurrentUser();
         super.onResume();
         Log.e(TAG, "onResume");
     }

@@ -42,4 +42,7 @@
     <string name="coworker_restaurant_choice_decided">is eating at</string>
     <string name="coworker_restaurant_choice_not_yet">hasn\'t decided yet</string>
     <string name="title_activity_main2">Main2Activity</string>
+
+    <string name="notifications_text">Enable notifications (once per day - 12:00)</string>
+    <string name="save_changes_text">Save changes</string>
 </resources>

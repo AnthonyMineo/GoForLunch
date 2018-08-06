@@ -11,4 +11,6 @@
 
     <dimen name="nav_header_height">175dip</dimen>
     <dimen name="ic_menu_drawer">120dip</dimen>
+
+    <dimen name="profile_picture">150dip</dimen>
 </resources>
