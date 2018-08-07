@@ -156,7 +156,7 @@ public class RestaurantsListFragment extends BaseFragment {
 
                         // - Fusion !!
                         String opening_hours = open + " - " + close;
-                        mResponseN.getResults().get(i).setOpening_hours(opening_hours);
+                        mResponseN.getResults().get(i).setOpening(opening_hours);
                     }
                 }
                 mResponseN.getResults().get(i).setPhoneNumber(responseD.getResult().getPhoneNumber());

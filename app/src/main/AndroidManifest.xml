@@ -39,17 +39,6 @@
                 android:value=".Controllers.Activities.MainActivity" />
         </activity>
 
-        <!-- Google MapsAPI Key / Android restriction -->
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="@string/MAPS_API_KEY" />
-
-        <!-- Location Service -->
-        <service
-            android:name=".Utils.LocationService"
-            android:enabled="true"
-            android:exported="true" />
-
         <!-- Restaurant Detail Activity -->
         <activity android:name=".Controllers.Activities.RestaurantDetailActivity" />
 
@@ -62,6 +51,22 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".Controllers.Activities.LunchActivity" />
         </activity>
-    </application>
 
+        <!-- Google MapsAPI Key / Android restriction -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/MAPS_API_KEY" />
+
+        <!-- Location Service -->
+        <service
+            android:name=".Utils.LocationService"
+            android:enabled="true"
+            android:exported="true" />
+
+        <!-- ALARM RECEIVER -->
+        <receiver
+            android:name=".Utils.Notifications.AlarmReceiver"
+            android:exported="true" />
+
+    </application>
 </manifest>

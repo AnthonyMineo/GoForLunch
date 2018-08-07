@@ -83,6 +83,7 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
     private Disposable disposable;
     private ResponseN mResponseN;
     private User currentUser;
+    private Result currentLunch;
 
     // --------------------
     // CREATION
@@ -100,7 +101,6 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
         this.configureNavigationView();
         this.configureBroadcastReceiver();
         this.configureLocationService();
-        this.configureCurrentUser();
 
         Log.e(TAG, "onCreate");
     }
@@ -276,21 +276,26 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
         });
     }
 
-    // - Display current user lunch
-    private void showCurrentLunch(){
+    private void configureCurrentLunch(){
         // - Search the restaurant chosen by current user
-        for(int i = 0; i < mResponseN.getResults().size(); i++){
-            if(currentUser.getLunchRestaurantId().equals(mResponseN.getResults().get(i).getPlaceId())){
-                Result restaurant = mResponseN.getResults().get(i);
-                // - Launch Detail activity
-                Intent intent = new Intent(LunchActivity.this, RestaurantDetailActivity.class);
-                intent.putExtra("restaurant",  restaurant);
-                startActivity(intent);
+        for(int i = 0; i < mResponseN.getResults().size(); i++) {
+            if (currentUser.getLunchRestaurantId().equals(mResponseN.getResults().get(i).getPlaceId())) {
+                currentLunch = mResponseN.getResults().get(i);
                 currentLunchSet = true;
             }
         }
-        if(!currentLunchSet)
+    }
+
+    // - Display current user lunch
+    private void showCurrentLunch(){
+        if(currentLunchSet) {
+            // - Launch Detail activity
+            Intent intent = new Intent(LunchActivity.this, RestaurantDetailActivity.class);
+            intent.putExtra("restaurant", currentLunch);
+            startActivity(intent);
+        } else {
             Toast.makeText(this, "You haven't decided yet", Toast.LENGTH_SHORT).show();
+        }
     }
 
     // - Decide how the search should work depending on viewpager's current fragment display
@@ -425,9 +430,10 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
         String placeId = result.getPlaceId();
         int ranking = 0;
         String placeName = result.getName();
+        String vicinity = result.getVicinity();
 
-        RestaurantHelper.createRestaurant(placeId, ranking, placeName).addOnFailureListener(this.onFailureListener());
-        Log.e("AAAAAAAAAAA", "restaurant create");
+        RestaurantHelper.createRestaurant(placeId, ranking, placeName, vicinity).addOnFailureListener(this.onFailureListener());
+        Log.e("TAG", "restaurant create");
     }
 
     // - Test if restaurant already exist in firebase, if not create it
@@ -442,13 +448,14 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
                 }
             });
         }
-
     }
 
     // - Configure Activity UI and show the mapFragment first
     private void ConfigureActivityUI(){
         this.configureViewPagerAndTabs();
         this.showFirstFragment();
+        this.configureCurrentUser();
+        this.configureCurrentLunch();
         // - UI is configure now
         this.mInitUI = true;
     }
@@ -468,6 +475,7 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
     private void startSettingsActivity(){
         Intent intent = new Intent(LunchActivity.this, SettingsActivity.class);
         intent.putExtra("currentUser", currentUser);
+        intent.putExtra("currentLunch", currentLunch);
         startActivity(intent);
     }
 

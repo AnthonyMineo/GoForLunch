@@ -43,6 +43,11 @@
     <string name="coworker_restaurant_choice_not_yet">hasn\'t decided yet</string>
     <string name="title_activity_main2">Main2Activity</string>
 
+    <!-- NOTIFICATION -->
+    <string name="cancel_notif">Notification Cancel !</string>
+    <string name="set_notif">Notification Set !</string>
+    <string name="title_notif">Your Lunch !</string>
+    <string name="text_notif_unvalid">You haven\'t decided yet !</string>
     <string name="notifications_text">Enable notifications (once per day - 12:00)</string>
     <string name="save_changes_text">Save changes</string>
 </resources>

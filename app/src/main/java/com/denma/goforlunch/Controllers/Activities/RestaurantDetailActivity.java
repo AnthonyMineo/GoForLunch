@@ -6,10 +6,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -17,11 +15,12 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.denma.goforlunch.BuildConfig;
-import com.denma.goforlunch.Models.Firebase.Restaurant;
 import com.denma.goforlunch.Models.Firebase.User;
 import com.denma.goforlunch.Models.GoogleAPI.Nearby.Result;
 import com.denma.goforlunch.R;
 import com.denma.goforlunch.Utils.ItemClickSupport;
+import com.denma.goforlunch.Utils.Notifications.NotificationAlarm;
+
 import com.denma.goforlunch.Utils.RestaurantHelper;
 import com.denma.goforlunch.Utils.UserHelper;
 import com.denma.goforlunch.Views.CoWorkerAdapter;
@@ -61,13 +60,13 @@ public class RestaurantDetailActivity extends BaseActivity {
     // FOR DATA
     private static final String TAG = "RestDetail_Activity"; // - RestaurantDetail Activity ID for log
     private Result currentRest;
-    private Restaurant thisRest;
     private List<User> users;
     private List<String> luncherId;
     private User currentUser;
     public CoWorkerAdapter mCoworkerAdapter;
     private boolean imIn;
     private boolean iLike;
+    private NotificationAlarm mNotificationAlarm;
 
     // --------------------
     // CREATION
@@ -140,6 +139,7 @@ public class RestaurantDetailActivity extends BaseActivity {
     }
 
     private void configureUI(){
+        this.mNotificationAlarm = new NotificationAlarm(getApplicationContext());
         // - Get the current restaurant from the intent's extra
         this.currentRest = (Result) getIntent().getSerializableExtra("restaurant");
         UserHelper.getUser(getCurrentUser().getUid()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -155,25 +155,27 @@ public class RestaurantDetailActivity extends BaseActivity {
                     imIn = false;
                     floatingButton.setImageDrawable(getResources().getDrawable(R.drawable.baseline_check_circle_grey_48));
                 }
+
+                UserHelper.getCollectionFromAUser(currentUser.getUid(), "restLike").addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        for(DocumentSnapshot docSnap : task.getResult()){
+                            if (docSnap.getId().equals(currentRest.getPlaceId())) {
+                                iLike = true;
+                            }
+                        }
+                        if (iLike){
+                            restLike.setBackgroundColor(getResources().getColor(R.color.colorGold));
+                        } else {
+                            iLike = false;
+                            restLike.setBackgroundColor(0);
+                        }
+                    }
+                });
             }
         });
 
-        UserHelper.getUsersCollection().document(getCurrentUser().getUid()).collection("restLike").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                for(DocumentSnapshot docSnap : task.getResult()){
-                    if (docSnap.getId().equals(currentRest.getPlaceId())) {
-                        iLike = true;
-                    }
-                }
-                if (iLike){
-                    restLike.setBackgroundColor(getResources().getColor(R.color.colorGold));
-                } else {
-                    iLike = false;
-                    restLike.setBackgroundColor(0);
-                }
-            }
-        });
+
 
         // - Set the restaurant main image
         if(currentRest.getPhotos().size() > 0){
@@ -195,27 +197,20 @@ public class RestaurantDetailActivity extends BaseActivity {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 totalUsers[0] = task.getResult().size();
-
-                RestaurantHelper.getRestaurant(currentRest.getPlaceId()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        Restaurant rest = task.getResult().toObject(Restaurant.class);
-                        int rank = rest.getRanking();
-                        if(rank == 0){
-                            restRanking.setImageDrawable(getResources().getDrawable(R.drawable.ic_0star_border_black_24dp)); // no Star
-                        } else if (rank < totalUsers[0] * 0.2){
-                            restRanking.setImageDrawable(getResources().getDrawable(R.drawable.ic_1star_border_black_24dp)); // one Star
-                        }  else if (rank < totalUsers[0] * 0.4){
-                            restRanking.setImageDrawable(getResources().getDrawable(R.drawable.ic_2star_border_black_24dp)); // two Star
-                        } else if (rank < totalUsers[0] * 0.6){
-                            restRanking.setImageDrawable(getResources().getDrawable(R.drawable.ic_3star_border_black_24dp)); // three Star
-                        } else if (rank < totalUsers[0] * 0.8){
-                            restRanking.setImageDrawable(getResources().getDrawable(R.drawable.ic_4star_border_black_24dp)); // four Star
-                        }  else {
-                            restRanking.setImageDrawable(getResources().getDrawable(R.drawable.ic_5star_border_black_24dp)); // five Star
-                        }
-                    }
-                });
+                int rank = currentRest.getRanking();
+                if(rank == 0){
+                    restRanking.setImageDrawable(getResources().getDrawable(R.drawable.ic_0star_border_black_24dp)); // no Star
+                } else if (rank < totalUsers[0] * 0.2){
+                    restRanking.setImageDrawable(getResources().getDrawable(R.drawable.ic_1star_border_black_24dp)); // one Star
+                }  else if (rank < totalUsers[0] * 0.4){
+                    restRanking.setImageDrawable(getResources().getDrawable(R.drawable.ic_2star_border_black_24dp)); // two Star
+                } else if (rank < totalUsers[0] * 0.6){
+                    restRanking.setImageDrawable(getResources().getDrawable(R.drawable.ic_3star_border_black_24dp)); // three Star
+                } else if (rank < totalUsers[0] * 0.8){
+                    restRanking.setImageDrawable(getResources().getDrawable(R.drawable.ic_4star_border_black_24dp)); // four Star
+                }  else {
+                    restRanking.setImageDrawable(getResources().getDrawable(R.drawable.ic_5star_border_black_24dp)); // five Star
+                }
             }
         });
 
@@ -227,8 +222,7 @@ public class RestaurantDetailActivity extends BaseActivity {
     public void updateUser() {
         users.clear();
 
-        RestaurantHelper.getRestaurantsCollection().document(currentRest.getPlaceId())
-                .collection("luncherId").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        RestaurantHelper.getCollectionFromARestaurant(currentRest.getPlaceId(), "luncherId").addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 for (DocumentSnapshot docSnap : task.getResult()) {
@@ -259,6 +253,9 @@ public class RestaurantDetailActivity extends BaseActivity {
                 }
             }).addOnFailureListener(this.onFailureListener());
             imIn = false;
+            // - Update the lunching restaurant of current user and update his pending intent for notification with a valid Restaurant object
+            mNotificationAlarm.updateLunchingRestaurant(null);
+
         } else {
             floatingButton.setImageDrawable(getResources().getDrawable(R.drawable.baseline_check_circle_green_48));
             UserHelper.updateLunchId(getCurrentUser().getUid(), currentRest.getPlaceId()).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -277,6 +274,8 @@ public class RestaurantDetailActivity extends BaseActivity {
                 }
             }).addOnFailureListener(this.onFailureListener());
             imIn = true;
+            // - Update the lunching restaurant of current user and update his pending intent for notification with a valid Restaurant object
+            mNotificationAlarm.updateLunchingRestaurant(currentRest);
         }
     }
 

@@ -132,7 +132,14 @@ public class MainActivity extends BaseActivity {
             String mail = this.getCurrentUser().getEmail();
             String uid = this.getCurrentUser().getUid();
 
-            UserHelper.createUser(uid, username, mail, urlPicture, "", "")
+            UserHelper.createUser(uid, username, mail, urlPicture, "", "").addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    // - Launch Lunch Activity
+                    Intent lunchIntent = new Intent(MainActivity.this, LunchActivity.class);
+                    startActivity(lunchIntent);
+                }
+            })
                     .addOnFailureListener(this.onFailureListener());
         }
     }
@@ -149,13 +156,15 @@ public class MainActivity extends BaseActivity {
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if(!task.getResult().exists()) {
                             createUserInFireStore();
+                        } else {
+                            // - Launch Lunch Activity
+                            Intent lunchIntent = new Intent(MainActivity.this, LunchActivity.class);
+                            startActivity(lunchIntent);
                         }
                     }
                 });
 
-                // - Launch Lunch Activity
-                Intent lunchIntent = new Intent(MainActivity.this, LunchActivity.class);
-                this.startActivity(lunchIntent);
+
 
             } else { // ERRORS
                 if (response == null){

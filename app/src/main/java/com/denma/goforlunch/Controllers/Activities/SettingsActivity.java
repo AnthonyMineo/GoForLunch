@@ -1,9 +1,16 @@
 package com.denma.goforlunch.Controllers.Activities;
 
+
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
-import android.support.v7.app.ActionBar;
+
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
+
 import android.util.Log;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -14,11 +21,23 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+
 import com.denma.goforlunch.Models.Firebase.User;
+import com.denma.goforlunch.Models.GoogleAPI.Nearby.Result;
 import com.denma.goforlunch.R;
+import com.denma.goforlunch.Utils.Notifications.AlarmReceiver;
+import com.denma.goforlunch.Utils.Notifications.NotificationAlarm;
+
+import com.denma.goforlunch.Utils.RestaurantHelper;
 import com.denma.goforlunch.Utils.UserHelper;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -42,6 +61,9 @@ public class SettingsActivity extends BaseActivity {
     // FOR DATA
     private static final String TAG = "Settings_Activity"; // - Activity ID for log
     private User currentUser;
+    private Result currentLunch;
+    private SharedPreferences mPreferences;
+    private NotificationAlarm mNotificationAlarm;
 
     // --------------------
     // CREATION
@@ -51,7 +73,7 @@ public class SettingsActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.configureUI();
-        //this.configureListener();
+        this.configureListener();
 
         Log.e(TAG, "onCreate");
     }
@@ -76,11 +98,19 @@ public class SettingsActivity extends BaseActivity {
     // --------------------
 
     private void configureUI() {
-        // - Get the current restaurant from the intent's extra
+        mNotificationAlarm = new NotificationAlarm(getApplicationContext());
+        // - Init pref in order to display the real state of the switch
+        mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        if(mPreferences.getBoolean("isSwitchChecked", false)){
+            notif_switch.setChecked(true);
+        }
+
+        // - Get the current info from the intent's extra
         this.currentUser = (User) getIntent().getSerializableExtra("currentUser");
+        this.currentLunch = (Result) getIntent().getSerializableExtra("currentLunch");
+        // - Set User infos
         user_name.setText(currentUser.getUsername());
         user_mail.setText(currentUser.getMail());
-        // - Set User Image
         if(currentUser.getUrlPicture() != null){
             try{
                 Glide.with(this).load(currentUser.getUrlPicture()).apply(RequestOptions.circleCropTransform()).into(user_picture);
@@ -96,33 +126,21 @@ public class SettingsActivity extends BaseActivity {
         }
     }
 
-    /*
     private void configureListener(){
         notif_switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                if (isChecked) {
-
-                }
-                    if(queryTerm.isEmpty()){
-                        Toast.makeText(getContext(), R.string.error_query, Toast.LENGTH_SHORT).show();
-                        mySwitch.setChecked(false);
-                    }
-                    else if(newsDesk == "") {
-                        Toast.makeText(getContext(), R.string.error_category, Toast.LENGTH_SHORT).show();
-                        mySwitch.setChecked(false);
-                    }
-                    else {
-                        startAlarm();
-                        mPreferences.edit().putBoolean("switchChecked", true).apply();
-                    }
+                if(isChecked){
+                    mNotificationAlarm.startAlarm(currentLunch);
+                    mPreferences.edit().putBoolean("isSwitchChecked", true).apply();
                 }
                 else {
-                    stopAlarm();
-                    mPreferences.edit().putBoolean("switchChecked", false).apply();
+                    mNotificationAlarm.stopAlarm(currentLunch);
+                    mPreferences.edit().putBoolean("isSwitchChecked", false).apply();
                 }
-
-    }*/
+            }
+        });
+    }
 
     @OnClick(R.id.settings_activity_save_changes)
     public void saveChanges(){

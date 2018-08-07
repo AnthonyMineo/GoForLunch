@@ -29,7 +29,32 @@ public class Result implements Serializable {
     private String opening;
     private String phoneNumber;
     private String website;
+    private int ranking;
+    private List<String> luncherId = new ArrayList<>();
 
+    public String getOpening() {
+        return opening;
+    }
+
+    public void setOpening(String opening) {
+        this.opening = opening;
+    }
+
+    public int getRanking() {
+        return ranking;
+    }
+
+    public void setRanking(int ranking) {
+        this.ranking = ranking;
+    }
+
+    public List<String> getLuncherId() {
+        return luncherId;
+    }
+
+    public void setLuncherId(List<String> luncherId) {
+        this.luncherId = luncherId;
+    }
 
     public Geometry getGeometry() {
         return geometry;
@@ -70,10 +95,6 @@ public class Result implements Serializable {
     public void setVicinity(String vicinity) {
         this.vicinity = vicinity;
     }
-
-    public String getOpening_hours() { return opening; }
-
-    public void setOpening_hours(String opening_hours) { this.opening = opening_hours; }
 
     public String getPhoneNumber() { return phoneNumber; }
 

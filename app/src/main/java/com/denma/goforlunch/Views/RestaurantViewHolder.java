@@ -1,7 +1,6 @@
 package com.denma.goforlunch.Views;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -13,7 +12,6 @@ import android.widget.TextView;
 
 import com.bumptech.glide.RequestManager;
 import com.denma.goforlunch.BuildConfig;
-import com.denma.goforlunch.Models.Firebase.Restaurant;
 import com.denma.goforlunch.Models.GoogleAPI.Nearby.Result;
 import com.denma.goforlunch.R;
 import com.denma.goforlunch.Utils.RestaurantHelper;
@@ -73,7 +71,7 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
         this.restLocation.setText(restaurant.getVicinity());
 
         // - Set Mate number that already decide to eat at this restaurant
-        RestaurantHelper.getRestaurantsCollection().document(restaurant.getPlaceId()).collection("luncherId").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        RestaurantHelper.getCollectionFromARestaurant(restaurant.getPlaceId(), "luncherId").addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 restMateNumber.setText("("+ String.valueOf(task.getResult().size()) + ")");
@@ -81,8 +79,8 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
         });
 
         // - Set Opening hours
-        if(restaurant.getOpening_hours() != null){
-            this.restOpeningHours.setText(restaurant.getOpening_hours());
+        if(restaurant.getOpening() != null){
+            this.restOpeningHours.setText(restaurant.getOpening());
             this.restOpeningHours.setTextColor(context.getResources().getColor(R.color.colorText));
         } else {
             this.restOpeningHours.setText(R.string.opening_hours_status);
@@ -99,8 +97,8 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
                 RestaurantHelper.getRestaurant(restaurant.getPlaceId()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        Restaurant rest = task.getResult().toObject(Restaurant.class);
-                        int rank = rest.getRanking();
+                        Result temp = task.getResult().toObject(Result.class);
+                        int rank = temp.getRanking();
                         if(rank == 0){
                             restRankImage.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_0star_border_black_24dp)); // no Star
                         } else if (rank < totalUsers[0] * 0.2){
