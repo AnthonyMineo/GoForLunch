@@ -106,6 +106,7 @@ public class RestaurantsListFragment extends BaseFragment {
                     public void onItemClicked(RecyclerView recyclerView, int position, View v) {
                         // - Get restaurant from adapter
                         Result restaurant = mRestaurantAdapter.getRestaurant(position);
+                        restaurantExist(restaurant);
                         // - Launch Detail activity
                         Intent intent = new Intent(getActivity(), RestaurantDetailActivity.class);
                         intent.putExtra("restaurant",  restaurant);
@@ -205,6 +206,9 @@ public class RestaurantsListFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
+        if (mResponseN != null){
+            updateUI(mResponseN);
+        }
         Log.e(TAG, "onResume");
     }
 

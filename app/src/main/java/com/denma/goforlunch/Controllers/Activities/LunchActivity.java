@@ -4,6 +4,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -15,6 +18,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -39,8 +43,11 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
+import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
+import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -76,10 +83,9 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
     private double currentLat;
     private double currentLng;
     private LatLng focusPos;
+    private String focusPlaceId;
     private boolean mServiceState;
     private boolean mInitUI;
-    private boolean fireBaseProcess;
-    private boolean currentLunchSet;
     private Disposable disposable;
     private ResponseN mResponseN;
     private User currentUser;
@@ -93,8 +99,7 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.mInitUI = false;
-        this.fireBaseProcess = true;
-        this.currentLunchSet = false;
+        this.focusPlaceId = "";
 
         this.configureToolBar();
         this.configureDrawerLayout();
@@ -128,6 +133,10 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
 
     public ResponseN getResponse(){
         return mResponseN;
+    }
+
+    public String getFocusPlaceId() {
+        return focusPlaceId;
     }
 
     // --------------------
@@ -232,6 +241,27 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
         tabs.setupWithViewPager(pager);
         // - Design purpose. Tabs have the same width
         tabs.setTabMode(TabLayout.MODE_FIXED);
+        tabs.getTabAt(0).setIcon(R.drawable.ic_map);
+        tabs.getTabAt(0).getIcon().setColorFilter(getResources().getColor(R.color.colorAccent), PorterDuff.Mode.SRC_IN);
+        tabs.getTabAt(1).setIcon(R.drawable.baseline_list_black_48);
+        tabs.getTabAt(2).setIcon(R.drawable.baseline_group_black_48);
+
+        tabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                tab.getIcon().setColorFilter(getResources().getColor(R.color.colorAccent), PorterDuff.Mode.SRC_IN);
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+                tab.getIcon().setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_IN);
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
 
         // - Fragment init
         mMapFragment = (MapFragment) myPagerAdapter.getFragment(0);
@@ -248,7 +278,9 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
                     // - We need to do something like this because the middle fragment is not re-created when switching between 3 views
                     if(mResponseN != null)
                         mRestaurantsListFragment.updateUI(mResponseN);
-
+                } else if (position == 2){
+                    if(mResponseN != null)
+                        mMapFragment.updateUI(mResponseN);
                 }
             }
 
@@ -276,19 +308,21 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
         });
     }
 
-    private void configureCurrentLunch(){
+    public void configureCurrentLunch(){
         // - Search the restaurant chosen by current user
         for(int i = 0; i < mResponseN.getResults().size(); i++) {
             if (currentUser.getLunchRestaurantId().equals(mResponseN.getResults().get(i).getPlaceId())) {
                 currentLunch = mResponseN.getResults().get(i);
-                currentLunchSet = true;
+                i = mResponseN.getResults().size();
+            } else {
+                currentLunch = null;
             }
         }
     }
 
     // - Display current user lunch
     private void showCurrentLunch(){
-        if(currentLunchSet) {
+        if(currentLunch != null) {
             // - Launch Detail activity
             Intent intent = new Intent(LunchActivity.this, RestaurantDetailActivity.class);
             intent.putExtra("restaurant", currentLunch);
@@ -321,11 +355,17 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
                 new LatLng(this.currentLat, this.currentLng),
                 new LatLng(this.currentLat, this.currentLng));
 
+        AutocompleteFilter typeFilter = new AutocompleteFilter.Builder()
+                .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ESTABLISHMENT)
+                .build();
+
+
         // - Place Auto Complete Activity
         try {
             Intent intent =
                     new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY)
                             .setBoundsBias(latLngBounds)
+                            .setFilter(typeFilter)
                             .build(this);
             startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
         } catch (GooglePlayServicesRepairableException e) {
@@ -338,8 +378,8 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
     }
 
     // - Search functionality for RestaurantsListFragment
-    private void searchForRestaurants(){
-        Toast.makeText(this, "Restaurants", Toast.LENGTH_SHORT).show();
+    private void searchForRestaurants() {
+
     }
 
     // - Search functionality for CoWorkerListFragment
@@ -410,10 +450,10 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
             @Override
             public void onComplete() {
                 Log.e(TAG,"NearbyPlaces On Complete !!");
-                // - If UI method are not already call, then call them
-                for(Result rest : mResponseN.getResults()){
-                    restaurantExist(rest);
+                for(int i = 0; i < mResponseN.getResults().size(); i++){
+                    restaurantExist(mResponseN.getResults().get(i));
                 }
+                // - If UI method are not already call, then call them
                 if (mInitUI == false){
                     ConfigureActivityUI();
                 } else {
@@ -423,31 +463,6 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
                 }
             }
         });
-    }
-
-    // - Http request that create restaurant in firestore
-    protected void createRestaurantInFireStore(Result result){
-        String placeId = result.getPlaceId();
-        int ranking = 0;
-        String placeName = result.getName();
-        String vicinity = result.getVicinity();
-
-        RestaurantHelper.createRestaurant(placeId, ranking, placeName, vicinity).addOnFailureListener(this.onFailureListener());
-        Log.e("TAG", "restaurant create");
-    }
-
-    // - Test if restaurant already exist in firebase, if not create it
-    protected void restaurantExist(final Result result){
-        if(fireBaseProcess){
-            RestaurantHelper.getRestaurantsCollection().document(result.getPlaceId()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if(!task.getResult().exists()) {
-                        createRestaurantInFireStore(result);
-                    }
-                }
-            });
-        }
     }
 
     // - Configure Activity UI and show the mapFragment first
@@ -462,6 +477,30 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
 
     private void disposeWhenDestroy(){
         if (this.disposable != null && !this.disposable.isDisposed()) this.disposable.dispose();
+    }
+
+    // - Http request that create restaurant in firestore
+    private void createRestaurantInFireStore(Result result){
+        String placeId = result.getPlaceId();
+        int ranking = 0;
+        String placeName = result.getName();
+        String vicinity = result.getVicinity();
+
+        RestaurantHelper.createRestaurant(placeId, ranking, placeName, vicinity).addOnFailureListener(this.onFailureListener());
+        Log.e("TAG", "restaurant create");
+    }
+
+    // - Test if restaurant already exist in firebase, if not create it
+    private void restaurantExist(final Result result){
+        RestaurantHelper.getRestaurantsCollection().document(result.getPlaceId()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if(!task.getResult().exists()) {
+                    createRestaurantInFireStore(result);
+                }
+            }
+        });
+
     }
 
     // --------------------
@@ -496,7 +535,7 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
                 // - Get the LatLng from the user's selected place and update the focusPos variable
                 Place place = PlaceAutocomplete.getPlace(this, data);
                 this.focusPos = place.getLatLng();
-
+                this.focusPlaceId = place.getId();
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 Status status = PlaceAutocomplete.getStatus(this, data);
                 // - Handle the error.
@@ -529,7 +568,6 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
     @Override
     protected void onDestroy() {
         this.mResponseN = null;
-        this.fireBaseProcess = false;
         this.disposeWhenDestroy();
         this.disconnectUser();
         // - Stop the location service
@@ -543,6 +581,9 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
     @Override
     protected void onResume() {
         configureCurrentUser();
+        if(mResponseN != null){
+            configureCurrentLunch();
+        }
         super.onResume();
         Log.e(TAG, "onResume");
     }

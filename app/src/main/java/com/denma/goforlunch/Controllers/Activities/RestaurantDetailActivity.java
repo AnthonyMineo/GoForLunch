@@ -61,7 +61,6 @@ public class RestaurantDetailActivity extends BaseActivity {
     private static final String TAG = "RestDetail_Activity"; // - RestaurantDetail Activity ID for log
     private Result currentRest;
     private List<User> users;
-    private List<String> luncherId;
     private User currentUser;
     public CoWorkerAdapter mCoworkerAdapter;
     private boolean imIn;
@@ -200,16 +199,12 @@ public class RestaurantDetailActivity extends BaseActivity {
                 int rank = currentRest.getRanking();
                 if(rank == 0){
                     restRanking.setImageDrawable(getResources().getDrawable(R.drawable.ic_0star_border_black_24dp)); // no Star
-                } else if (rank < totalUsers[0] * 0.2){
+                } else if (rank < totalUsers[0] * 0.33){
                     restRanking.setImageDrawable(getResources().getDrawable(R.drawable.ic_1star_border_black_24dp)); // one Star
-                }  else if (rank < totalUsers[0] * 0.4){
+                }  else if (rank < totalUsers[0] * 0.66){
                     restRanking.setImageDrawable(getResources().getDrawable(R.drawable.ic_2star_border_black_24dp)); // two Star
-                } else if (rank < totalUsers[0] * 0.6){
+                } else {
                     restRanking.setImageDrawable(getResources().getDrawable(R.drawable.ic_3star_border_black_24dp)); // three Star
-                } else if (rank < totalUsers[0] * 0.8){
-                    restRanking.setImageDrawable(getResources().getDrawable(R.drawable.ic_4star_border_black_24dp)); // four Star
-                }  else {
-                    restRanking.setImageDrawable(getResources().getDrawable(R.drawable.ic_5star_border_black_24dp)); // five Star
                 }
             }
         });

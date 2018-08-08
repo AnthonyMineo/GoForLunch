@@ -20,6 +20,7 @@ import com.denma.goforlunch.Models.GoogleAPI.Nearby.ResponseN;
 import com.denma.goforlunch.Models.GoogleAPI.Nearby.Result;
 import com.denma.goforlunch.R;
 
+import com.denma.goforlunch.Utils.RestaurantHelper;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -29,6 +30,9 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -47,6 +51,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
     // FOR DATA
     private static final String TAG = "Map_Fragment"; // - Map Fragment ID for log
     private LatLng currentPosition;
+    private MarkerOptions markerOptions;
 
     // --------------------
     // CREATION
@@ -115,9 +120,9 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
         this.currentPosition = new LatLng(currentLat, currentLng);
         // - Allow us to handle user's selection from Place autocomplete
         if(mLunchActivity.getFocusPos() != null){
-            changeFocusPosition(mLunchActivity.getFocusPos());
+            changeFocusPosition(mLunchActivity.getFocusPos(), mLunchActivity.getFocusPlaceId());
         } else {
-            changeFocusPosition(currentPosition);
+            changeFocusPosition(currentPosition, mLunchActivity.getFocusPlaceId());
         }
 
         if (mResponseN != null){
@@ -147,6 +152,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
         for(int i = 0; i < mResponseN.getResults().size(); i++) {
             if (marker.getSnippet().equals(mResponseN.getResults().get(i).getPlaceId())) {
                 Result restaurant = mResponseN.getResults().get(i);
+                restaurantExist(restaurant);
                 // - Launch Detail activity
                 Intent intent = new Intent(getActivity(), RestaurantDetailActivity.class);
                 intent.putExtra("restaurant", restaurant);
@@ -157,9 +163,21 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
     }
 
     // - Change the Camera position on the map to the given LatLng
-    public void changeFocusPosition(LatLng latLng){
+    public void changeFocusPosition(LatLng latLng, String placeId){
         Log.e(TAG, "CameraUpdate");
         CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng,16);
+
+        if(placeId != ""){
+            MarkerOptions markerOptions = new MarkerOptions();
+            // Position of Marker on Map
+            markerOptions.position(latLng);
+            markerOptions.snippet(placeId);
+            // Adding Marker to the Camera.
+            Marker m = mMap.addMarker(markerOptions);
+            // Adding colour to the marker
+            //markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+        }
+
         this.mMap.animateCamera(update);
     }
 
@@ -168,21 +186,40 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
         mMap.clear();
         // This loop will go through all the results and add marker on each location.
         for (int i = 0; i < response.getResults().size(); i++) {
-            Double lat = response.getResults().get(i).getGeometry().getLocation().getLat();
-            Double lng = response.getResults().get(i).getGeometry().getLocation().getLng();
-            String placeId =  response.getResults().get(i).getPlaceId();
-
-            MarkerOptions markerOptions = new MarkerOptions();
-            LatLng latLng = new LatLng(lat, lng);
-            // Position of Marker on Map
-            markerOptions.position(latLng);
-            markerOptions.snippet(placeId);
-            // Adding Marker to the Camera.
-            Marker m = mMap.addMarker(markerOptions);
+            final Double lat = response.getResults().get(i).getGeometry().getLocation().getLat();
+            final Double lng = response.getResults().get(i).getGeometry().getLocation().getLng();
+            final String placeId =  response.getResults().get(i).getPlaceId();
             // Adding colour to the marker
-            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+            RestaurantHelper.getCollectionFromARestaurant(response.getResults().get(i).getPlaceId(), "luncherId").addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if(task.getResult().isEmpty()){
+                        markerOptions = new MarkerOptions();
+                        LatLng latLng = new LatLng(lat, lng);
+                        // Position of Marker on Map
+                        markerOptions.position(latLng);
+                        markerOptions.snippet(placeId);
+                        markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.maps_marker_red));
+                        // Adding Marker to the Camera.
+                        Marker m = mMap.addMarker(markerOptions);
+                    } else {
+                        markerOptions = new MarkerOptions();
+                        LatLng latLng = new LatLng(lat, lng);
+                        // Position of Marker on Map
+                        markerOptions.position(latLng);
+                        markerOptions.snippet(placeId);
+                        markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.maps_marker_green));
+                        // Adding Marker to the Camera.
+                        Marker m = mMap.addMarker(markerOptions);
+                    }
+                }
+            });
         }
         Log.e(TAG, "Update done ! " + String.valueOf(response.getResults().size()));
+    }
+
+    private void checkForMarkerStyle(){
+
     }
 
     // --------------------
@@ -215,9 +252,12 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
         if (mMapView != null) {
             mMapView.onResume();
         }
+        if(mResponseN != null && mMap != null){
+            updateUI(mResponseN);
+        }
         // - Allow us to handle user's selection from Place autocomplete
         if(mLunchActivity.getFocusPos() != null && mMap != null)
-            changeFocusPosition(mLunchActivity.getFocusPos());
+            changeFocusPosition(mLunchActivity.getFocusPos(), mLunchActivity.getFocusPlaceId());
         Log.e(TAG, "onResume");
     }
 

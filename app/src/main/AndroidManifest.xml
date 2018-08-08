@@ -19,7 +19,8 @@
 
         <!-- Main Activity -->
 
-        <activity android:name=".Controllers.Activities.MainActivity">
+        <activity android:name=".Controllers.Activities.MainActivity"
+            android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -31,6 +32,7 @@
         <activity
             android:name=".Controllers.Activities.LunchActivity"
             android:label="Lunch"
+            android:configChanges="orientation|screenSize"
             android:parentActivityName=".Controllers.Activities.MainActivity">
 
             <!-- Parent activity meta-data to support 4.0 and lower -->
@@ -44,6 +46,7 @@
 
         <activity android:name=".Controllers.Activities.SettingsActivity"
             android:label="Settings"
+            android:configChanges="orientation|screenSize"
             android:parentActivityName=".Controllers.Activities.LunchActivity">
 
             <!-- Parent activity meta-data to support 4.0 and lower -->

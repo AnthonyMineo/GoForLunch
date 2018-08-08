@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,12 +15,18 @@ import android.widget.Toast;
 import com.denma.goforlunch.Controllers.Activities.LunchActivity;
 
 import com.denma.goforlunch.Models.GoogleAPI.Nearby.ResponseN;
+import com.denma.goforlunch.Models.GoogleAPI.Nearby.Result;
 import com.denma.goforlunch.R;
 
+import com.denma.goforlunch.Utils.RestaurantHelper;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentSnapshot;
 
 
 import butterknife.ButterKnife;
+import io.reactivex.functions.Function;
 
 import static com.facebook.FacebookSdk.getApplicationContext;
 
@@ -76,6 +83,30 @@ public abstract class BaseFragment extends Fragment {
         currentLat = lat;
         currentLng = lng;
         mResponseN = rep;
+    }
+
+    // - Http request that create restaurant in firestore
+    protected void createRestaurantInFireStore(Result result){
+        String placeId = result.getPlaceId();
+        int ranking = 0;
+        String placeName = result.getName();
+        String vicinity = result.getVicinity();
+
+        RestaurantHelper.createRestaurant(placeId, ranking, placeName, vicinity).addOnFailureListener(this.onFailureListener());
+        Log.e("TAG", "restaurant create");
+    }
+
+    // - Test if restaurant already exist in firebase, if not create it
+    protected void restaurantExist(final Result result){
+        RestaurantHelper.getRestaurantsCollection().document(result.getPlaceId()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if(!task.getResult().exists()) {
+                    createRestaurantInFireStore(result);
+                }
+            }
+        });
+
     }
 
     // --------------------

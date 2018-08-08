@@ -101,17 +101,14 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
                         int rank = temp.getRanking();
                         if(rank == 0){
                             restRankImage.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_0star_border_black_24dp)); // no Star
-                        } else if (rank < totalUsers[0] * 0.2){
+                        } else if (rank < totalUsers[0] * 0.33){
                             restRankImage.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_1star_border_black_24dp)); // one Star
-                        }  else if (rank < totalUsers[0] * 0.4){
+                        }  else if (rank < totalUsers[0] * 0.66){
                             restRankImage.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_2star_border_black_24dp)); // two Star
-                        } else if (rank < totalUsers[0] * 0.6){
+                        } else {
                             restRankImage.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_3star_border_black_24dp)); // three Star
-                        } else if (rank < totalUsers[0] * 0.8){
-                            restRankImage.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_4star_border_black_24dp)); // four Star
-                        }  else {
-                            restRankImage.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_5star_border_black_24dp)); // five Star
                         }
+
                     }
                 });
             }

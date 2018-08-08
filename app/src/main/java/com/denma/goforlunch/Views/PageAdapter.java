@@ -44,11 +44,11 @@ public class PageAdapter extends FragmentStatePagerAdapter {
     public CharSequence getPageTitle(int position) {
         switch (position){
             case 0: //Page number 1
-                return "map";
+                return "Map View";
             case 1: //Page number 2
-                return "rest";
+                return "List View";
             case 2: //Page number 3
-                return "cowork";
+                return "WorkMates";
             default:
                 return null;
         }
