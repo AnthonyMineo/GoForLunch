@@ -166,18 +166,6 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
     public void changeFocusPosition(LatLng latLng, String placeId){
         Log.e(TAG, "CameraUpdate");
         CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng,16);
-
-        if(placeId != ""){
-            MarkerOptions markerOptions = new MarkerOptions();
-            // Position of Marker on Map
-            markerOptions.position(latLng);
-            markerOptions.snippet(placeId);
-            // Adding Marker to the Camera.
-            Marker m = mMap.addMarker(markerOptions);
-            // Adding colour to the marker
-            //markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-        }
-
         this.mMap.animateCamera(update);
     }
 
@@ -216,10 +204,6 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
             });
         }
         Log.e(TAG, "Update done ! " + String.valueOf(response.getResults().size()));
-    }
-
-    private void checkForMarkerStyle(){
-
     }
 
     // --------------------

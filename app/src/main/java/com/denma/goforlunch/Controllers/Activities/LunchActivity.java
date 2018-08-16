@@ -1,12 +1,12 @@
 package com.denma.goforlunch.Controllers.Activities;
 
+import android.app.SearchManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -22,6 +22,7 @@ import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -46,13 +47,14 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
-import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
-import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import io.reactivex.disposables.Disposable;
@@ -73,6 +75,9 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
     private MapFragment mMapFragment;
     private RestaurantsListFragment mRestaurantsListFragment;
     private CoWorkerListFragment mCoWorkerListFragment;
+    private SearchView searchView;
+    private MenuItem searchGoogle;
+    private MenuItem searchRest;
 
     // FOR PERMISSIONS
 
@@ -86,6 +91,7 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
     private String focusPlaceId;
     private boolean mServiceState;
     private boolean mInitUI;
+    private boolean isDestroy;
     private Disposable disposable;
     private ResponseN mResponseN;
     private User currentUser;
@@ -99,8 +105,8 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.mInitUI = false;
+        this.isDestroy = false;
         this.focusPlaceId = "";
-
         this.configureToolBar();
         this.configureDrawerLayout();
         this.configureNavigationView();
@@ -154,7 +160,26 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // - Inflate the menu and add it to the Toolbar
-        getMenuInflater().inflate(R.menu.activity_lunch_menu_tools, menu);
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.activity_lunch_menu_tools, menu);
+        this.searchGoogle = menu.findItem(R.id.activity_lunch_menu_search);
+        this.searchRest = menu.findItem(R.id.search);
+        this.searchView = (SearchView) searchRest.getActionView();
+        this.searchView.setQueryHint("Restaurant");
+        this.searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                doMySearch(query);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+        searchGoogle.setVisible(true);
+        searchRest.setVisible(false);
         return true;
     }
 
@@ -211,6 +236,7 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
 
     // - Configure Toolbar
     private void configureToolBar() {
+        toolbar.setTitle("I'm Hungry !");
         setSupportActionBar(toolbar);
     }
 
@@ -275,12 +301,25 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
             @Override
             public void onPageSelected(int position) {
                 if(position == 1){
+                    toolbar.setTitle("I'm Hungry !");
+                    searchGoogle.setVisible(false);
+                    searchRest.setVisible(true);
                     // - We need to do something like this because the middle fragment is not re-created when switching between 3 views
                     if(mResponseN != null)
                         mRestaurantsListFragment.updateUI(mResponseN);
                 } else if (position == 2){
+                    toolbar.setTitle("Available workmates");
+                    searchRest.collapseActionView();
+                    searchGoogle.setVisible(true);
+                    searchRest.setVisible(false);
                     if(mResponseN != null)
                         mMapFragment.updateUI(mResponseN);
+                } else {
+                    toolbar.setTitle("I'm Hungry !");
+                    searchRest.collapseActionView();
+                    searchGoogle.setVisible(true);
+                    searchRest.setVisible(false);
+
                 }
             }
 
@@ -296,39 +335,6 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
             // - Show MapFragment
             this.showMapFragment();
             pager.setCurrentItem(0);
-        }
-    }
-
-    private void configureCurrentUser(){
-        UserHelper.getUsersCollection().document(this.getCurrentUser().getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                currentUser = task.getResult().toObject(User.class);
-            }
-        });
-    }
-
-    public void configureCurrentLunch(){
-        // - Search the restaurant chosen by current user
-        for(int i = 0; i < mResponseN.getResults().size(); i++) {
-            if (currentUser.getLunchRestaurantId().equals(mResponseN.getResults().get(i).getPlaceId())) {
-                currentLunch = mResponseN.getResults().get(i);
-                i = mResponseN.getResults().size();
-            } else {
-                currentLunch = null;
-            }
-        }
-    }
-
-    // - Display current user lunch
-    private void showCurrentLunch(){
-        if(currentLunch != null) {
-            // - Launch Detail activity
-            Intent intent = new Intent(LunchActivity.this, RestaurantDetailActivity.class);
-            intent.putExtra("restaurant", currentLunch);
-            startActivity(intent);
-        } else {
-            Toast.makeText(this, "You haven't decided yet", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -384,9 +390,20 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
 
     // - Search functionality for CoWorkerListFragment
     private void searchForCoWorker(){
-        Toast.makeText(this, "CoWorker", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Not Yet", Toast.LENGTH_SHORT).show();
     }
 
+    private void doMySearch(String query){
+        ResponseN queryResponseN = new ResponseN();
+        List queryResult = new ArrayList();
+        for(Result restaurant : mResponseN.getResults()){
+            if(restaurant.getName().toLowerCase().contains(query.toLowerCase()) || restaurant.getVicinity().toLowerCase().contains(query.toLowerCase())){
+                queryResult.add(restaurant);
+            }
+        }
+        queryResponseN.setResults(queryResult);
+        this.mRestaurantsListFragment.updateUI(queryResponseN);
+    }
     // --------------------
     // UTILS
     // --------------------
@@ -470,9 +487,30 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
         this.configureViewPagerAndTabs();
         this.showFirstFragment();
         this.configureCurrentUser();
-        this.configureCurrentLunch();
         // - UI is configure now
         this.mInitUI = true;
+    }
+
+    private void configureCurrentUser(){
+        UserHelper.getUsersCollection().document(this.getCurrentUser().getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                currentUser = task.getResult().toObject(User.class);
+                configureCurrentLunch();
+            }
+        });
+    }
+
+    public void configureCurrentLunch(){
+        // - Search the restaurant chosen by current user
+        for(int i = 0; i < mResponseN.getResults().size(); i++) {
+            if (currentUser.getLunchRestaurantId().equals(mResponseN.getResults().get(i).getPlaceId())) {
+                currentLunch = mResponseN.getResults().get(i);
+                i = mResponseN.getResults().size();
+            } else {
+                currentLunch = null;
+            }
+        }
     }
 
     private void disposeWhenDestroy(){
@@ -492,15 +530,16 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
 
     // - Test if restaurant already exist in firebase, if not create it
     private void restaurantExist(final Result result){
-        RestaurantHelper.getRestaurantsCollection().document(result.getPlaceId()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if(!task.getResult().exists()) {
-                    createRestaurantInFireStore(result);
+        if(!isDestroy){
+            RestaurantHelper.getRestaurantsCollection().document(result.getPlaceId()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if(!task.getResult().exists()) {
+                        createRestaurantInFireStore(result);
+                    }
                 }
-            }
-        });
-
+            });
+        }
     }
 
     // --------------------
@@ -516,6 +555,18 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
         intent.putExtra("currentUser", currentUser);
         intent.putExtra("currentLunch", currentLunch);
         startActivity(intent);
+    }
+
+    // - Display current user lunch
+    private void showCurrentLunch(){
+        if(currentLunch != null) {
+            // - Launch Detail activity
+            Intent intent = new Intent(LunchActivity.this, RestaurantDetailActivity.class);
+            intent.putExtra("restaurant", currentLunch);
+            startActivity(intent);
+        } else {
+            Toast.makeText(this, "You haven't decided yet", Toast.LENGTH_SHORT).show();
+        }
     }
 
     // --------------------
@@ -567,6 +618,7 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
 
     @Override
     protected void onDestroy() {
+        this.isDestroy = true;
         this.mResponseN = null;
         this.disposeWhenDestroy();
         this.disconnectUser();
@@ -580,7 +632,6 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
 
     @Override
     protected void onResume() {
-        configureCurrentUser();
         if(mResponseN != null){
             configureCurrentLunch();
         }
