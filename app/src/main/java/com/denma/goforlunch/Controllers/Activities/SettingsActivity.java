@@ -1,10 +1,7 @@
 package com.denma.goforlunch.Controllers.Activities;
 
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -25,19 +22,12 @@ import com.bumptech.glide.request.RequestOptions;
 import com.denma.goforlunch.Models.Firebase.User;
 import com.denma.goforlunch.Models.GoogleAPI.Nearby.Result;
 import com.denma.goforlunch.R;
-import com.denma.goforlunch.Utils.Notifications.AlarmReceiver;
+
 import com.denma.goforlunch.Utils.Notifications.NotificationAlarm;
 
-import com.denma.goforlunch.Utils.RestaurantHelper;
 import com.denma.goforlunch.Utils.UserHelper;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
-
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -64,6 +54,7 @@ public class SettingsActivity extends BaseActivity {
     private Result currentLunch;
     private SharedPreferences mPreferences;
     private NotificationAlarm mNotificationAlarm;
+    private Context mContext;
 
     // --------------------
     // CREATION
@@ -74,7 +65,7 @@ public class SettingsActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         this.configureUI();
         this.configureListener();
-
+        this.mContext = getParent();
         Log.e(TAG, "onCreate");
     }
 
@@ -98,7 +89,7 @@ public class SettingsActivity extends BaseActivity {
     // --------------------
 
     private void configureUI() {
-        mNotificationAlarm = new NotificationAlarm(getApplicationContext());
+        mNotificationAlarm = new NotificationAlarm(mContext);
         // - Init pref in order to display the real state of the switch
         mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         if(mPreferences.getBoolean("isSwitchChecked", false)){
@@ -158,7 +149,7 @@ public class SettingsActivity extends BaseActivity {
     }
 
     private void updateDone(){
-        Toast.makeText(this, "update done !", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, getResources().getString(R.string.update_done), Toast.LENGTH_SHORT).show();
     }
 
     // --------------------

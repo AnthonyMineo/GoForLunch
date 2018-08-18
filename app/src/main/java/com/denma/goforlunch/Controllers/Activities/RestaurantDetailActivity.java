@@ -1,5 +1,6 @@
 package com.denma.goforlunch.Controllers.Activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -65,6 +66,7 @@ public class RestaurantDetailActivity extends BaseActivity {
     public CoWorkerAdapter mCoworkerAdapter;
     private boolean imIn;
     private boolean iLike;
+    private Context mContext;
     private NotificationAlarm mNotificationAlarm;
 
     // --------------------
@@ -76,7 +78,7 @@ public class RestaurantDetailActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         this.configureSwipeRefreshLayout();
         this.configureRecyclerView();
-        this.configureOnClickRecyclerView();
+        this.mContext = getParent();
         this.configureUI();
         this.updateUser();
     }
@@ -124,21 +126,8 @@ public class RestaurantDetailActivity extends BaseActivity {
         this.recyclerView.setLayoutManager(new LinearLayoutManager(RestaurantDetailActivity.this));
     }
 
-    private void configureOnClickRecyclerView() {
-        ItemClickSupport.addTo(recyclerView, R.layout.coworker_recycle_item)
-                .setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
-                    @Override
-                    public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-                        // 1 - Get user from adapter
-                        User user = mCoworkerAdapter.getCoWorker(position);
-                        // 2 - Do something
-                        Toast.makeText(RestaurantDetailActivity.this, "You click on : " + user.getUsername(), Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
-
     private void configureUI(){
-        this.mNotificationAlarm = new NotificationAlarm(getApplicationContext());
+        this.mNotificationAlarm = new NotificationAlarm(mContext);
         // - Get the current restaurant from the intent's extra
         this.currentRest = (Result) getIntent().getSerializableExtra("restaurant");
         UserHelper.getUser(getCurrentUser().getUid()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -173,8 +162,6 @@ public class RestaurantDetailActivity extends BaseActivity {
                 });
             }
         });
-
-
 
         // - Set the restaurant main image
         if(currentRest.getPhotos().size() > 0){
@@ -216,7 +203,6 @@ public class RestaurantDetailActivity extends BaseActivity {
     // Set the user that will eat to this restaurant
     public void updateUser() {
         users.clear();
-
         RestaurantHelper.getCollectionFromARestaurant(currentRest.getPlaceId(), "luncherId").addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {

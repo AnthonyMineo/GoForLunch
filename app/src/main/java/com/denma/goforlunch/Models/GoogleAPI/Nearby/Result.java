@@ -56,6 +56,7 @@ public class Result implements Serializable {
         this.luncherId = luncherId;
     }
 
+
     public Geometry getGeometry() {
         return geometry;
     }

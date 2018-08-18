@@ -1,5 +1,6 @@
 package com.denma.goforlunch.Views;
 
+import android.content.Context;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -10,15 +11,18 @@ import android.view.ViewGroup;
 import com.denma.goforlunch.Controllers.Fragments.CoWorkerListFragment;
 import com.denma.goforlunch.Controllers.Fragments.MapFragment;
 import com.denma.goforlunch.Controllers.Fragments.RestaurantsListFragment;
+import com.denma.goforlunch.R;
 
 
 public class PageAdapter extends FragmentStatePagerAdapter {
     // - A SparseArray that will contain our fragment
     private final SparseArray<Fragment> instantiatedFragments = new SparseArray<>();
+    private Context mContext;
 
     // - Constructor
-    public PageAdapter(FragmentManager mgr) {
+    public PageAdapter(FragmentManager mgr, Context context) {
         super(mgr);
+        this.mContext = context;
     }
 
     @Override
@@ -44,11 +48,11 @@ public class PageAdapter extends FragmentStatePagerAdapter {
     public CharSequence getPageTitle(int position) {
         switch (position){
             case 0: //Page number 1
-                return "Map View";
+                return mContext.getResources().getString(R.string.tab_title_1);
             case 1: //Page number 2
-                return "List View";
+                return mContext.getResources().getString(R.string.tab_title_2);
             case 2: //Page number 3
-                return "WorkMates";
+                return mContext.getResources().getString(R.string.tab_title_3);
             default:
                 return null;
         }

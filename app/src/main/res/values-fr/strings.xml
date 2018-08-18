@@ -1,0 +1,67 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name">Go4Lunch</string>
+    <string name="main_activity_description">Trouvez un bon restaurant et invitez vos collègues pour le déjeuner</string>
+
+    <!-- MAIN ACTIVITY -->
+    <string name="connection_succeed">Authentification réussie !</string>
+    <string name="account_creation_done">Création du compte réussie</string>
+    <string name="button_login_text_not_logged">Connexion</string>
+    <string name="facebook_connexion">Connexion avec Facebook</string>
+    <string name="google_connexion">Connexion avec Google</string>
+    <string name="twitter_connexion">Connexion avec Twitter</string>
+    <string name="email_connexion">Connexion avec E-mail</string>
+
+    <!-- LUNCH ACTIVITY -->
+    <string name="search_query_hint">Recherche Restaurants</string>
+    <string name="toolbar_title1">J\'ai Faim !</string>
+    <string name="toolbar_title2">Collègues Disponibles</string>
+    <string name="tab_title_1">Carte</string>
+    <string name="tab_title_2">Liste</string>
+    <string name="tab_title_3">Collègues</string>
+
+    <!-- NAVIGATION DRAWER -->
+    <string name="navigation_drawer_open">Navigation drawer ouvert</string>
+    <string name="navigation_drawer_close">Navigation drawer fermé</string>
+    <string name="lunch_item">DEJEUNER</string>
+    <string name="setting_item">REGLAGES</string>
+    <string name="logout_item">DECONNEXION</string>
+
+    <!-- PERMISSIONS -->
+    <string name="popup_title_permission_location_access">Cette application a besoin de permission pour fonctionner.</string>
+
+    <!-- RESTAURANTS -->
+    <string name="opening_hours_status">Fermé !</string>
+    <string name="current_lunch_not_found">Vous n\'avez pas encore décidé</string>
+
+    <!-- COWORKERS -->
+    <string name="coworker_restaurant_choice_decided">mange au</string>
+    <string name="coworker_restaurant_choice_not_yet">n\'a pas encore choisit</string>
+    <string name="search_waiting_to_be_done">Pas encore implementé !</string>
+
+    <!-- NOTIFICATIONS -->
+    <string name="cancel_notif">Notification désactivé !</string>
+    <string name="set_notif">Notification activé !</string>
+    <string name="title_notif">Votre Déjeuné !</string>
+    <string name="text_notif_unvalid">Vous n\'avez pas encore décidé</string>
+    <string name="notifications_text">Activer les notifications (une fois par jour - 12:00)</string>
+    <string name="save_changes_text">Sauvegarder</string>
+    <string name="update_done">Mise à jour effectué !</string>
+    <string name="text_notif_valid1">Vous avez choisi de manger au</string>
+    <string name="text_notif_valid2">avec</string>
+
+    <!-- FACEBOOK PURPOSE -->
+    <string name="facebook_application_id" translatable="false">224193358312077</string>
+    <string name="facebook_login_protocol_scheme" translatable="false" tools:ignore="UnusedResources">fb224193358312077</string>
+
+    <!-- TWITTER PURPOSE -->
+    <string name="twitter_consumer_key" translatable="false">oLAEpwjxRHOqctPdBEha4lYtU</string>
+    <string name="twitter_consumer_secret" translatable="false"> mO4Zon7idHAapiLIJnyNyoQqr55oALSbrxClWev9SRr0maj9NO</string>
+
+    <!-- ERRORS -->
+    <string name="error_not_connected">Vous devez vous connecter !</string>
+    <string name="error_authentication_canceled">Authentification annulée&#8230;</string>
+    <string name="error_no_internet">Aucune connexion internet !</string>
+    <string name="error_unknown_error">Une erreur inconnue s\'est produite&#8230;</string>
+    <string name="google_play_services_repairable_Exception">GooglePlayServicesRepairableException</string>
+    <string name="google_play_services_not_available_exception">GooglePlayServicesNotAvailableException</string>
+</resources>

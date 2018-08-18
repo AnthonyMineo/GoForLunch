@@ -6,7 +6,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
-import android.util.Log;
 
 import com.denma.goforlunch.R;
 import com.denma.goforlunch.Utils.UserHelper;
@@ -16,15 +15,6 @@ import com.firebase.ui.auth.IdpResponse;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.twitter.sdk.android.core.Callback;
-import com.twitter.sdk.android.core.DefaultLogger;
-import com.twitter.sdk.android.core.Result;
-import com.twitter.sdk.android.core.Twitter;
-import com.twitter.sdk.android.core.TwitterAuthConfig;
-import com.twitter.sdk.android.core.TwitterConfig;
-import com.twitter.sdk.android.core.TwitterException;
-import com.twitter.sdk.android.core.TwitterSession;
-import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
 import java.util.Arrays;
 
@@ -139,8 +129,7 @@ public class MainActivity extends BaseActivity {
                     Intent lunchIntent = new Intent(MainActivity.this, LunchActivity.class);
                     startActivity(lunchIntent);
                 }
-            })
-                    .addOnFailureListener(this.onFailureListener());
+            }).addOnFailureListener(this.onFailureListener());
         }
     }
 
@@ -163,9 +152,6 @@ public class MainActivity extends BaseActivity {
                         }
                     }
                 });
-
-
-
             } else { // ERRORS
                 if (response == null){
                     showSnackBar(this.coordinatorLayout, getString(R.string.error_authentication_canceled));

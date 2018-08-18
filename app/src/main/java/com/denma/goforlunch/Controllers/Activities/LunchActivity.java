@@ -1,6 +1,5 @@
 package com.denma.goforlunch.Controllers.Activities;
 
-import android.app.SearchManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -24,8 +23,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.denma.goforlunch.Controllers.Fragments.BaseFragment;
 import com.denma.goforlunch.Controllers.Fragments.CoWorkerListFragment;
 import com.denma.goforlunch.Controllers.Fragments.MapFragment;
@@ -69,6 +72,9 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
     Toolbar toolbar;
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
+    private ImageView profilePic;
+    private TextView userName;
+    private TextView userMail;
     private TabLayout tabs;
     private PageAdapter myPagerAdapter;
     private ViewPager pager;
@@ -165,7 +171,7 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
         this.searchGoogle = menu.findItem(R.id.activity_lunch_menu_search);
         this.searchRest = menu.findItem(R.id.search);
         this.searchView = (SearchView) searchRest.getActionView();
-        this.searchView.setQueryHint("Restaurant");
+        this.searchView.setQueryHint(getResources().getString(R.string.search_query_hint));
         this.searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -187,7 +193,7 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.activity_lunch_menu_search:
-                // - Launch Search activity/dialog
+                // - Choose what to do depending on the current fragment
                 this.chooseSearchEffect();
                 return true;
             default:
@@ -212,15 +218,15 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
 
         switch (id){
             case R.id.menu_drawer_item_lunch :
-                //Do something about your lunch
+                // - Show the current user lunch choice
                 showCurrentLunch();
                 break;
             case R.id.menu_drawer_item_settings:
-                //Do something about settings
+                // - Show the settings of the current user
                 startSettingsActivity();
                 break;
             case R.id.menu_drawer_item_log_out:
-                //Do something about log out
+                // - Run off the activity
                 this.finish();
                 break;
             default:
@@ -236,7 +242,7 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
 
     // - Configure Toolbar
     private void configureToolBar() {
-        toolbar.setTitle("I'm Hungry !");
+        toolbar.setTitle(getResources().getString(R.string.toolbar_title1));
         setSupportActionBar(toolbar);
     }
 
@@ -258,7 +264,7 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
     private void configureViewPagerAndTabs() {
         // - Get ViewPager from layout
         pager = findViewById(R.id.activity_lunch_viewpager);
-        myPagerAdapter = new PageAdapter(getSupportFragmentManager());
+        myPagerAdapter = new PageAdapter(getSupportFragmentManager(), this);
         // - Set Adapter PageAdapter and glue it together
         pager.setAdapter(myPagerAdapter);
         // - Get TabLayout from layout
@@ -301,21 +307,21 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
             @Override
             public void onPageSelected(int position) {
                 if(position == 1){
-                    toolbar.setTitle("I'm Hungry !");
+                    toolbar.setTitle(getResources().getString(R.string.toolbar_title1));
                     searchGoogle.setVisible(false);
                     searchRest.setVisible(true);
                     // - We need to do something like this because the middle fragment is not re-created when switching between 3 views
                     if(mResponseN != null)
                         mRestaurantsListFragment.updateUI(mResponseN);
                 } else if (position == 2){
-                    toolbar.setTitle("Available workmates");
+                    toolbar.setTitle(getResources().getString(R.string.toolbar_title2));
                     searchRest.collapseActionView();
                     searchGoogle.setVisible(true);
                     searchRest.setVisible(false);
                     if(mResponseN != null)
                         mMapFragment.updateUI(mResponseN);
                 } else {
-                    toolbar.setTitle("I'm Hungry !");
+                    toolbar.setTitle(getResources().getString(R.string.toolbar_title1));
                     searchRest.collapseActionView();
                     searchGoogle.setVisible(true);
                     searchRest.setVisible(false);
@@ -365,7 +371,6 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
                 .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ESTABLISHMENT)
                 .build();
 
-
         // - Place Auto Complete Activity
         try {
             Intent intent =
@@ -376,10 +381,10 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
             startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
         } catch (GooglePlayServicesRepairableException e) {
             // - Handle the error
-            Toast.makeText(this, "GooglePlayServicesRepairableException", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getResources().getString(R.string.google_play_services_repairable_Exception), Toast.LENGTH_SHORT).show();
         } catch (GooglePlayServicesNotAvailableException e) {
             // - Handle the error.
-            Toast.makeText(this, "GooglePlayServicesNotAvailableException", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getResources().getString(R.string.google_play_services_not_available_exception), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -390,7 +395,7 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
 
     // - Search functionality for CoWorkerListFragment
     private void searchForCoWorker(){
-        Toast.makeText(this, "Not Yet", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, getResources().getString(R.string.search_waiting_to_be_done), Toast.LENGTH_SHORT).show();
     }
 
     private void doMySearch(String query){
@@ -496,6 +501,26 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 currentUser = task.getResult().toObject(User.class);
+                // - Set up the navigation drawer user's info
+                profilePic = findViewById(R.id.nav_header_profile_picture);
+                userName = findViewById(R.id.nav_header_user_name);
+                userMail = findViewById(R.id.nav_header_user_mail);
+                if(currentUser.getUrlPicture() != null){
+                    try{
+                        Glide.with(navigationView).load(currentUser.getUrlPicture()).apply(RequestOptions.circleCropTransform()).into(profilePic);
+                    } catch (Exception e){
+                        e.printStackTrace();
+                    }
+                } else {
+                    try{
+                        Glide.with(navigationView).load("https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png").apply(RequestOptions.circleCropTransform()).into(profilePic);
+                    } catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+                userName.setText(currentUser.getUsername());
+                userMail.setText(currentUser.getMail());
+
                 configureCurrentLunch();
             }
         });
@@ -506,6 +531,7 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
         for(int i = 0; i < mResponseN.getResults().size(); i++) {
             if (currentUser.getLunchRestaurantId().equals(mResponseN.getResults().get(i).getPlaceId())) {
                 currentLunch = mResponseN.getResults().get(i);
+                Log.e(TAG, "current lunch update");
                 i = mResponseN.getResults().size();
             } else {
                 currentLunch = null;
@@ -565,7 +591,7 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
             intent.putExtra("restaurant", currentLunch);
             startActivity(intent);
         } else {
-            Toast.makeText(this, "You haven't decided yet", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getResources().getString(R.string.current_lunch_not_found), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -633,7 +659,7 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
     @Override
     protected void onResume() {
         if(mResponseN != null){
-            configureCurrentLunch();
+            configureCurrentUser();
         }
         super.onResume();
         Log.e(TAG, "onResume");

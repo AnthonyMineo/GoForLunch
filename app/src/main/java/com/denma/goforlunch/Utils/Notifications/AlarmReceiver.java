@@ -9,7 +9,6 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.denma.goforlunch.Controllers.Activities.MainActivity;
-import com.denma.goforlunch.Models.GoogleAPI.Nearby.Result;
 import com.denma.goforlunch.R;
 
 public class AlarmReceiver extends BroadcastReceiver {
@@ -48,9 +47,9 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         // - Notification with a valid Restaurant object
         if (answer) {
-
             // - Set the notification Text
-            String text = "You choose to lunch at " + restName + " (" + restVicinity + "), with " + restCoworker;
+            String text = context.getResources().getString(R.string.text_notif_valid1) + " " + restName + " (" + restVicinity + "), "
+                    + context.getResources().getString(R.string.text_notif_valid2) + restCoworker;
             builder.setContentTitle(context.getResources().getString(R.string.title_notif))
                     .setContentText(text)
                     .setContentIntent(pendingIntent)

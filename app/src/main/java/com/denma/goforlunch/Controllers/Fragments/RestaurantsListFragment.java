@@ -120,10 +120,16 @@ public class RestaurantsListFragment extends BaseFragment {
     public void updateUI(ResponseN responseN) {
         mRestaurants.clear();
         // This loop will go through all the results
-        for (int i = 0; i < responseN.getResults().size(); i++) {
-            executeHttpRequestWithRetrofit_DetailPlaces(responseN.getResults().get(i).getPlaceId(), i, responseN);
+        if(responseN.getResults().size() != 0){
+            for (int i = 0; i < responseN.getResults().size(); i++) {
+                executeHttpRequestWithRetrofit_DetailPlaces(responseN.getResults().get(i).getPlaceId(), i, responseN);
+            }
+            Log.e(TAG, "Update done ! " + String.valueOf(responseN.getResults().size()));
+        } else {
+            mRestaurantAdapter.updateCurrentData(currentLat, currentLng);
+            mRestaurantAdapter.notifyDataSetChanged();
         }
-        Log.e(TAG, "Update done ! " + String.valueOf(responseN.getResults().size()));
+
     }
 
     // --------------------
@@ -157,11 +163,11 @@ public class RestaurantsListFragment extends BaseFragment {
 
                         // - Fusion !!
                         String opening_hours = open + " - " + close;
-                        mResponseN.getResults().get(i).setOpening(opening_hours);
+                        responseN.getResults().get(i).setOpening(opening_hours);
                     }
                 }
-                mResponseN.getResults().get(i).setPhoneNumber(responseD.getResult().getPhoneNumber());
-                mResponseN.getResults().get(i).setWebsite(responseD.getResult().getWebsite());
+                responseN.getResults().get(i).setPhoneNumber(responseD.getResult().getPhoneNumber());
+                responseN.getResults().get(i).setWebsite(responseD.getResult().getWebsite());
                 Log.e(TAG, "DetailPlaces On Next");
             }
 

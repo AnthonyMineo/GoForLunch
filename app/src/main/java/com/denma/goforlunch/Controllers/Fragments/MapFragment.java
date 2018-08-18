@@ -129,7 +129,6 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
             // - Display nearby restaurant marker
             updateUI(mResponseN);
         }
-
     }
 
     @Override
@@ -181,25 +180,19 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
             RestaurantHelper.getCollectionFromARestaurant(response.getResults().get(i).getPlaceId(), "luncherId").addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    markerOptions = new MarkerOptions();
+                    LatLng latLng = new LatLng(lat, lng);
+                    // Position of Marker on Map
+                    markerOptions.position(latLng);
+                    markerOptions.snippet(placeId);
                     if(task.getResult().isEmpty()){
-                        markerOptions = new MarkerOptions();
-                        LatLng latLng = new LatLng(lat, lng);
-                        // Position of Marker on Map
-                        markerOptions.position(latLng);
-                        markerOptions.snippet(placeId);
                         markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.maps_marker_red));
-                        // Adding Marker to the Camera.
-                        Marker m = mMap.addMarker(markerOptions);
+
                     } else {
-                        markerOptions = new MarkerOptions();
-                        LatLng latLng = new LatLng(lat, lng);
-                        // Position of Marker on Map
-                        markerOptions.position(latLng);
-                        markerOptions.snippet(placeId);
                         markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.maps_marker_green));
-                        // Adding Marker to the Camera.
-                        Marker m = mMap.addMarker(markerOptions);
                     }
+                    // Adding Marker to the Camera.
+                    Marker m = mMap.addMarker(markerOptions);
                 }
             });
         }

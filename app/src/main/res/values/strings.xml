@@ -2,23 +2,52 @@
     <string name="app_name">Go4Lunch</string>
     <string name="main_activity_description">Find a nice restaurant and invite your co-worker for lunch!</string>
 
+    <!-- MAIN ACTIVITY -->
+    <string name="connection_succeed">Authentication successful !</string>
+    <string name="account_creation_done">Account creation successful !</string>
+    <string name="button_login_text_not_logged">Connection</string>
     <string name="facebook_connexion">Sign in with Facebook</string>
     <string name="google_connexion">Sign in with Google</string>
     <string name="twitter_connexion">Sign in with Twitter</string>
     <string name="email_connexion">Sign in with E-mail</string>
 
-    <!-- MAIN ACTIVITY -->
-    <string name="error_not_connected">Vous devez vous connecter !</string>
-    <string name="error_authentication_canceled">Authentification annulée&#8230;</string>
-    <string name="error_no_internet">Aucune connexion internet !</string>
-    <string name="error_unknown_error">Une erreur inconnue s\'est produite&#8230;</string>
-    <string name="connection_succeed">Authentification réussie !</string>
-    <string name="account_creation_done">Création du compte réussie</string>
-    <string name="button_login_text_not_logged">Connexion</string>
+    <!-- LUNCH ACTIVITY -->
+    <string name="search_query_hint">Search Restaurants</string>
+    <string name="toolbar_title1">I\'m Hungry !</string>
+    <string name="toolbar_title2">Available Workmates</string>
+    <string name="tab_title_1">Map View</string>
+    <string name="tab_title_2">List View</string>
+    <string name="tab_title_3">Workmates</string>
 
     <!-- NAVIGATION DRAWER -->
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="lunch_item">YOUR LUNCH</string>
+    <string name="setting_item">SETTINGS</string>
+    <string name="logout_item">LOGOUT</string>
+
+    <!-- PERMISSIONS -->
+    <string name="popup_title_permission_location_access">This application need permissions to work</string>
+
+    <!-- RESTAURANTS -->
+    <string name="opening_hours_status">Close</string>
+    <string name="current_lunch_not_found">You haven\'t decided yet</string>
+
+    <!-- COWORKERS -->
+    <string name="coworker_restaurant_choice_decided">is eating at</string>
+    <string name="coworker_restaurant_choice_not_yet">hasn\'t decided yet</string>
+    <string name="search_waiting_to_be_done">Not Yet Implemented !</string>
+
+    <!-- NOTIFICATIONS -->
+    <string name="cancel_notif">Notification Cancel !</string>
+    <string name="set_notif">Notification Set !</string>
+    <string name="title_notif">Your Lunch !</string>
+    <string name="text_notif_unvalid">You haven\'t decided yet !</string>
+    <string name="notifications_text">Enable notifications (once per day - 12:00)</string>
+    <string name="save_changes_text">Save changes</string>
+    <string name="update_done">Update done !</string>
+    <string name="text_notif_valid1">You choose to lunch at</string>
+    <string name="text_notif_valid2">with</string>
 
     <!-- FACEBOOK PURPOSE -->
     <string name="facebook_application_id" translatable="false">224193358312077</string>
@@ -28,26 +57,11 @@
     <string name="twitter_consumer_key" translatable="false">oLAEpwjxRHOqctPdBEha4lYtU</string>
     <string name="twitter_consumer_secret" translatable="false"> mO4Zon7idHAapiLIJnyNyoQqr55oALSbrxClWev9SRr0maj9NO</string>
 
-
-    <!-- PERMISSIONS -->
-    <string name="popup_title_permission_location_access">Cette application a besoin de permission pour fonctionner.</string>
-
-    <!-- RESTAURANT -->
-    <string name="opening_hours_status">Fermé !</string>
-
-    <!-- SEARCH -->
-    <string name="search_restaurant_list_hint">Recherche restaurants</string>
-
-    <!-- COWORKER -->
-    <string name="coworker_restaurant_choice_decided">is eating at</string>
-    <string name="coworker_restaurant_choice_not_yet">hasn\'t decided yet</string>
-    <string name="title_activity_main2">Main2Activity</string>
-
-    <!-- NOTIFICATION -->
-    <string name="cancel_notif">Notification Cancel !</string>
-    <string name="set_notif">Notification Set !</string>
-    <string name="title_notif">Your Lunch !</string>
-    <string name="text_notif_unvalid">You haven\'t decided yet !</string>
-    <string name="notifications_text">Enable notifications (once per day - 12:00)</string>
-    <string name="save_changes_text">Save changes</string>
+    <!-- ERRORS -->
+    <string name="error_not_connected">You need to be connected</string>
+    <string name="error_authentication_canceled">Authentication cancel&#8230;</string>
+    <string name="error_no_internet">No internet connection!</string>
+    <string name="error_unknown_error">An unknown error has occurred&#8230;</string>
+    <string name="google_play_services_repairable_Exception">GooglePlayServicesRepairableException</string>
+    <string name="google_play_services_not_available_exception">GooglePlayServicesNotAvailableException</string>
 </resources>

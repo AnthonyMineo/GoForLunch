@@ -38,14 +38,11 @@ public class NotificationAlarm {
             luncherId = new ArrayList<>();
             rest.setLuncherId(luncherId);
 
-            Log.e(TAG, "test update static");
-
             // - Get luncherId collection of the current user's lunching restaurant in FireBase
             RestaurantHelper.getRestaurantsCollection().document(rest.getPlaceId())
                     .collection("luncherId").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                    Log.e(TAG, "test update static on complete");
 
                     // - Set the list of luncher id
                     for (DocumentSnapshot docSnap : task.getResult()) {
@@ -90,13 +87,13 @@ public class NotificationAlarm {
         } else {
             alarmIntent.putExtra("restName", "");
         }
-        pendingIntent = PendingIntent.getBroadcast(mContext, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        this.pendingIntent = PendingIntent.getBroadcast(mContext, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         Log.e("NotifAlarm", "configureOk");
     }
 
     // - Start Alarm
     public void startAlarm(Result result) {
-        if(pendingIntent == null){
+        if(this.pendingIntent == null){
             configureAlarmManager(result);
         }
         // - Define when the alarm will be firing
@@ -104,8 +101,8 @@ public class NotificationAlarm {
         Calendar midday = Calendar.getInstance();
         Calendar now = Calendar.getInstance();
         midday.set(Calendar.HOUR_OF_DAY, 12);
-        midday.set(Calendar.MINUTE, 00);
-        midday.set(Calendar.SECOND, 00);
+        midday.set(Calendar.MINUTE, 0);
+        midday.set(Calendar.SECOND, 0);
 
         // - Allow us to know if alarm time is past or not -> don't start it if it's past
         if(midday.getTimeInMillis() <= now.getTimeInMillis())
@@ -114,18 +111,18 @@ public class NotificationAlarm {
             alarmUp = midday.getTimeInMillis();
 
         AlarmManager manager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
-        manager.setRepeating(AlarmManager.RTC_WAKEUP, alarmUp, AlarmManager.INTERVAL_DAY, pendingIntent);
+        manager.setRepeating(AlarmManager.RTC_WAKEUP, alarmUp, AlarmManager.INTERVAL_DAY, this.pendingIntent);
         Toast.makeText(mContext, R.string.set_notif, Toast.LENGTH_SHORT).show();
         Log.e("NotifAlarm", "StartOk");
     }
 
     // - Stop Alarm
     public void stopAlarm(Result result) {
-        if(pendingIntent == null){
+        if(this.pendingIntent == null){
             configureAlarmManager(result);
         }
         AlarmManager manager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
-        manager.cancel(pendingIntent);
+        manager.cancel(this.pendingIntent);
         Toast.makeText(mContext, R.string.cancel_notif, Toast.LENGTH_SHORT).show();
         Log.e("NotifAlarm", "StopOk");
     }

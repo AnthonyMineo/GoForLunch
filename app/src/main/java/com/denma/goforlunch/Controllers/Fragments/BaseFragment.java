@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-
 import com.denma.goforlunch.Controllers.Activities.LunchActivity;
 
 import com.denma.goforlunch.Models.GoogleAPI.Nearby.ResponseN;
@@ -24,9 +23,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 
-
 import butterknife.ButterKnife;
-import io.reactivex.functions.Function;
 
 import static com.facebook.FacebookSdk.getApplicationContext;
 
