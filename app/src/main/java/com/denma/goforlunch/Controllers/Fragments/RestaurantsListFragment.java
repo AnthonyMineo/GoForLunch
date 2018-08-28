@@ -106,7 +106,6 @@ public class RestaurantsListFragment extends BaseFragment {
                     public void onItemClicked(RecyclerView recyclerView, int position, View v) {
                         // - Get restaurant from adapter
                         Result restaurant = mRestaurantAdapter.getRestaurant(position);
-                        restaurantExist(restaurant);
                         // - Launch Detail activity
                         Intent intent = new Intent(getActivity(), RestaurantDetailActivity.class);
                         intent.putExtra("restaurant",  restaurant);

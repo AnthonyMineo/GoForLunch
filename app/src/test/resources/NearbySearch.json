@@ -1,0 +1,20 @@
+{
+  "results": [
+    {
+      "geometry": {
+        "location": {
+          "lat": -33.870775,
+          "lng": 151.199025
+        }
+      },
+      "name": "Rhythmboat Cruises",
+      "photos": [
+        {
+          "photo_reference": "CnRnAAAAF-LjFR1ZV93eawe1cU_3QNMCNmaGkowY7CnOf-kcNmPhNnPEG9W979jOuJJ1sGr75rhD5hqKzjD8vbMbSsRnq_Ni3ZIGfY6hKWmsOf3qHKJInkm4h55lzvLAXJVc-Rr4kI9O1tmIblblUpg2oqoq8RIQRMQJhFsTr5s9haxQ07EQHxoUO0ICubVFGYfJiMUPor1GnIWb5i8"
+        }
+      ],
+      "place_id": "ChIJyWEHuEmuEmsRm9hTkapTCrk",
+      "vicinity": "Pyrmont Bay Wharf Darling Dr, Sydney"
+    }
+  ]
+}

@@ -106,7 +106,6 @@ public class CoWorkerListFragment extends BaseFragment {
                         for(int i = 0; i < mResponseN.getResults().size(); i++){
                             if(user.getLunchRestaurantId().equals(mResponseN.getResults().get(i).getPlaceId())){
                                 Result restaurant = mResponseN.getResults().get(i);
-                                restaurantExist(restaurant);
                                 // - Launch Detail activity
                                 Intent intent = new Intent(getActivity(), RestaurantDetailActivity.class);
                                 intent.putExtra("restaurant",  restaurant);

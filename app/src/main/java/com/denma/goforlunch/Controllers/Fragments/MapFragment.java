@@ -120,9 +120,9 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
         this.currentPosition = new LatLng(currentLat, currentLng);
         // - Allow us to handle user's selection from Place autocomplete
         if(mLunchActivity.getFocusPos() != null){
-            changeFocusPosition(mLunchActivity.getFocusPos(), mLunchActivity.getFocusPlaceId());
+            changeFocusPosition(mLunchActivity.getFocusPos());
         } else {
-            changeFocusPosition(currentPosition, mLunchActivity.getFocusPlaceId());
+            changeFocusPosition(currentPosition);
         }
 
         if (mResponseN != null){
@@ -151,7 +151,6 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
         for(int i = 0; i < mResponseN.getResults().size(); i++) {
             if (marker.getSnippet().equals(mResponseN.getResults().get(i).getPlaceId())) {
                 Result restaurant = mResponseN.getResults().get(i);
-                restaurantExist(restaurant);
                 // - Launch Detail activity
                 Intent intent = new Intent(getActivity(), RestaurantDetailActivity.class);
                 intent.putExtra("restaurant", restaurant);
@@ -162,7 +161,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
     }
 
     // - Change the Camera position on the map to the given LatLng
-    public void changeFocusPosition(LatLng latLng, String placeId){
+    public void changeFocusPosition(LatLng latLng){
         Log.e(TAG, "CameraUpdate");
         CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng,16);
         this.mMap.animateCamera(update);
@@ -234,7 +233,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
         }
         // - Allow us to handle user's selection from Place autocomplete
         if(mLunchActivity.getFocusPos() != null && mMap != null)
-            changeFocusPosition(mLunchActivity.getFocusPos(), mLunchActivity.getFocusPlaceId());
+            changeFocusPosition(mLunchActivity.getFocusPos());
         Log.e(TAG, "onResume");
     }
 

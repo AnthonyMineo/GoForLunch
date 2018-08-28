@@ -1,0 +1,20 @@
+{
+  "result" : {
+    "formatted_phone_number": "(02) 9374 4000",
+    "website": "https://www.google.com.au/about/careers/locations/sydney/",
+    "opening_hours": {
+      "periods": [
+        {
+          "close": {
+            "day": 0,
+            "time": "2230"
+          },
+          "open": {
+            "day": 0,
+            "time": "1200"
+          }
+        }
+      ]
+    }
+  }
+}
