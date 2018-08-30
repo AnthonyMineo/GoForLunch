@@ -6,20 +6,17 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.View;
+
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.denma.goforlunch.BuildConfig;
 import com.denma.goforlunch.Models.Firebase.User;
 import com.denma.goforlunch.Models.GoogleAPI.Nearby.Result;
 import com.denma.goforlunch.R;
-import com.denma.goforlunch.Utils.ItemClickSupport;
 import com.denma.goforlunch.Utils.Notifications.NotificationAlarm;
 
 import com.denma.goforlunch.Utils.RestaurantHelper;
@@ -53,8 +50,6 @@ public class RestaurantDetailActivity extends BaseActivity {
     TextView restLocation;
     @BindView(R.id.activity_restaurant_detail_recycler_view)
     RecyclerView recyclerView;
-    @BindView(R.id.activity_restaurant_detail_swipe_refresh)
-    SwipeRefreshLayout swipeRefreshLayout;
 
     // FOR PERMISSIONS
 
@@ -76,9 +71,8 @@ public class RestaurantDetailActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.configureSwipeRefreshLayout();
+        this.mContext = getApplicationContext();
         this.configureRecyclerView();
-        this.mContext = getParent();
         this.configureUI();
         this.updateUser();
     }
@@ -103,16 +97,6 @@ public class RestaurantDetailActivity extends BaseActivity {
     // --------------------
     // ACTIONS
     // --------------------
-
-
-    private void configureSwipeRefreshLayout(){
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                updateUser();
-            }
-        });
-    }
 
     // - Configure RecyclerView, Adapter, LayoutManager & glue it together
     private void configureRecyclerView(){

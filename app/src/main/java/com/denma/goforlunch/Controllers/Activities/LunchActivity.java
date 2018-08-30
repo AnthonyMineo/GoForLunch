@@ -273,27 +273,14 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
         tabs.setupWithViewPager(pager);
         // - Design purpose. Tabs have the same width
         tabs.setTabMode(TabLayout.MODE_FIXED);
+
         tabs.getTabAt(0).setIcon(R.drawable.ic_map);
-        tabs.getTabAt(0).getIcon().setColorFilter(getResources().getColor(R.color.colorAccent), PorterDuff.Mode.SRC_IN);
         tabs.getTabAt(1).setIcon(R.drawable.baseline_list_black_48);
         tabs.getTabAt(2).setIcon(R.drawable.baseline_group_black_48);
 
-        tabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                tab.getIcon().setColorFilter(getResources().getColor(R.color.colorAccent), PorterDuff.Mode.SRC_IN);
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-                tab.getIcon().setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_IN);
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-
-            }
-        });
+        tabs.getTabAt(0).getIcon().setColorFilter(getResources().getColor(R.color.colorAccent), PorterDuff.Mode.SRC_IN);
+        tabs.getTabAt(1).getIcon().setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_IN);
+        tabs.getTabAt(2).getIcon().setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_IN);
 
         // - Fragment init
         mMapFragment = (MapFragment) myPagerAdapter.getFragment(0);
@@ -310,6 +297,9 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
                     toolbar.setTitle(getResources().getString(R.string.toolbar_title1));
                     searchGoogle.setVisible(false);
                     searchRest.setVisible(true);
+                    tabs.getTabAt(1).getIcon().setColorFilter(getResources().getColor(R.color.colorAccent), PorterDuff.Mode.SRC_IN);
+                    tabs.getTabAt(0).getIcon().setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_IN);
+                    tabs.getTabAt(2).getIcon().setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_IN);
                     // - We need to do something like this because the middle fragment is not re-created when switching between 3 views
                     if(mResponseN != null)
                         mRestaurantsListFragment.updateUI(mResponseN);
@@ -318,6 +308,9 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
                     searchRest.collapseActionView();
                     searchGoogle.setVisible(true);
                     searchRest.setVisible(false);
+                    tabs.getTabAt(2).getIcon().setColorFilter(getResources().getColor(R.color.colorAccent), PorterDuff.Mode.SRC_IN);
+                    tabs.getTabAt(1).getIcon().setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_IN);
+                    tabs.getTabAt(0).getIcon().setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_IN);
                     if(mResponseN != null)
                         mMapFragment.updateUI(mResponseN);
                 } else {
@@ -325,6 +318,9 @@ public class LunchActivity extends BaseActivity implements NavigationView.OnNavi
                     searchRest.collapseActionView();
                     searchGoogle.setVisible(true);
                     searchRest.setVisible(false);
+                    tabs.getTabAt(0).getIcon().setColorFilter(getResources().getColor(R.color.colorAccent), PorterDuff.Mode.SRC_IN);
+                    tabs.getTabAt(1).getIcon().setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_IN);
+                    tabs.getTabAt(2).getIcon().setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_IN);
 
                 }
             }

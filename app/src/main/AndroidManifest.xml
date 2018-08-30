@@ -38,11 +38,20 @@
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".Controllers.Activities.MainActivity" />
+                android:value=".Controllers.Activities.LunchActivity" />
         </activity>
 
         <!-- Restaurant Detail Activity -->
-        <activity android:name=".Controllers.Activities.RestaurantDetailActivity" />
+        <activity
+            android:name=".Controllers.Activities.RestaurantDetailActivity"
+            android:configChanges="orientation|screenSize"
+            android:parentActivityName=".Controllers.Activities.LunchActivity">
+
+            !-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".Controllers.Activities.LunchActivity" />
+        </activity>
 
         <activity android:name=".Controllers.Activities.SettingsActivity"
             android:label="Settings"

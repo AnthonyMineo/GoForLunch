@@ -1,6 +1,7 @@
 package com.denma.goforlunch.Controllers.Activities;
 
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -63,9 +64,9 @@ public class SettingsActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.mContext = getApplicationContext();
         this.configureUI();
         this.configureListener();
-        this.mContext = getParent();
         Log.e(TAG, "onCreate");
     }
 
