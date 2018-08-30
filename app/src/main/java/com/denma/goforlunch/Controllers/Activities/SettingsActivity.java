@@ -1,7 +1,6 @@
 package com.denma.goforlunch.Controllers.Activities;
 
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -40,8 +39,6 @@ public class SettingsActivity extends BaseActivity {
     ImageView user_picture;
     @BindView(R.id.user_name_edit_text)
     EditText user_name;
-    @BindView(R.id.user_mail_edit_text)
-    EditText user_mail;
     @BindView(R.id.notications_switch)
     Switch notif_switch;
     @BindView(R.id.settings_activity_save_changes)
@@ -102,7 +99,6 @@ public class SettingsActivity extends BaseActivity {
         this.currentLunch = (Result) getIntent().getSerializableExtra("currentLunch");
         // - Set User infos
         user_name.setText(currentUser.getUsername());
-        user_mail.setText(currentUser.getMail());
         if(currentUser.getUrlPicture() != null){
             try{
                 Glide.with(this).load(currentUser.getUrlPicture()).apply(RequestOptions.circleCropTransform()).into(user_picture);
@@ -136,17 +132,16 @@ public class SettingsActivity extends BaseActivity {
 
     @OnClick(R.id.settings_activity_save_changes)
     public void saveChanges(){
-        UserHelper.updateUsername(user_name.getText().toString(), currentUser.getUid()).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                UserHelper.updateMail(user_mail.getText().toString(), currentUser.getUid()).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        updateDone();
-                    }
-                });
-            }
-        }).addOnFailureListener(this.onFailureListener());
+        if(!user_name.getText().toString().equals("")) {
+            UserHelper.updateUsername(user_name.getText().toString(), currentUser.getUid()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    updateDone();
+                }
+            }).addOnFailureListener(this.onFailureListener());
+        } else {
+            Toast.makeText(this, getResources().getString(R.string.update_failed), Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void updateDone(){

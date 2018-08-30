@@ -43,9 +43,10 @@
     <string name="set_notif">Notification activé !</string>
     <string name="title_notif">Votre Déjeuné !</string>
     <string name="text_notif_unvalid">Vous n\'avez pas encore décidé</string>
-    <string name="notifications_text">Activer les notifications (une fois par jour - 12:00)</string>
+    <string name="notifications_text">Activer notifications (une fois par jour - 12:00)</string>
     <string name="save_changes_text">Sauvegarder</string>
     <string name="update_done">Mise à jour effectué !</string>
+    <string name="update_failed">Sauvegarde impossible : champ vide !</string>
     <string name="text_notif_valid1">Vous avez choisi de manger au</string>
     <string name="text_notif_valid2">avec</string>
 
