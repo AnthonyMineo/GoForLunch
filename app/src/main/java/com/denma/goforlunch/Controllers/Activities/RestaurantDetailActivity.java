@@ -167,16 +167,23 @@ public class RestaurantDetailActivity extends BaseActivity {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 totalUsers[0] = task.getResult().size();
-                int rank = currentRest.getRanking();
-                if(rank == 0){
-                    restRanking.setImageDrawable(getResources().getDrawable(R.drawable.ic_0star_border_black_24dp)); // no Star
-                } else if (rank < totalUsers[0] * 0.33){
-                    restRanking.setImageDrawable(getResources().getDrawable(R.drawable.ic_1star_border_black_24dp)); // one Star
-                }  else if (rank < totalUsers[0] * 0.66){
-                    restRanking.setImageDrawable(getResources().getDrawable(R.drawable.ic_2star_border_black_24dp)); // two Star
-                } else {
-                    restRanking.setImageDrawable(getResources().getDrawable(R.drawable.ic_3star_border_black_24dp)); // three Star
-                }
+
+                RestaurantHelper.getRestaurant(currentRest.getPlaceId()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        Result temp = task.getResult().toObject(Result.class);
+                        int rank = temp.getRanking();
+                        if (rank == 0) {
+                            restRanking.setImageDrawable(getResources().getDrawable(R.drawable.ic_0star_border_black_24dp)); // no Star
+                        } else if (rank < totalUsers[0] * 0.33) {
+                            restRanking.setImageDrawable(getResources().getDrawable(R.drawable.ic_1star_border_black_24dp)); // one Star
+                        } else if (rank < totalUsers[0] * 0.66) {
+                            restRanking.setImageDrawable(getResources().getDrawable(R.drawable.ic_2star_border_black_24dp)); // two Star
+                        } else {
+                            restRanking.setImageDrawable(getResources().getDrawable(R.drawable.ic_3star_border_black_24dp)); // three Star
+                        }
+                    }
+                });
             }
         });
 
