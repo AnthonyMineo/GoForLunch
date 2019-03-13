@@ -143,30 +143,34 @@ public class RestaurantsListFragment extends BaseFragment {
             public void onNext(ResponseD responseD) {
                 int day = calendar.get(Calendar.DAY_OF_WEEK);
 
-                List<Periods> temp = responseD.getResult().getOpeningHours().getPeriods();
+                try {
+                    List<Periods> temp = responseD.getResult().getOpeningHours().getPeriods();
+                    for (Periods p : temp){
+                        if((p.getOpen().getDay() + 1) == day){
+                            String open = p.getOpen().getTime();
+                            String close = p.getClose().getTime();
 
-                for (Periods p : temp){
-                    if((p.getOpen().getDay() + 1) == day){
-                        String open = p.getOpen().getTime();
-                        String close = p.getClose().getTime();
+                            // - Format Open hour
+                            StringBuilder str = new StringBuilder(open);
+                            str.insert(2, ":");
+                            open = str.toString();
 
-                        // - Format Open hour
-                        StringBuilder str = new StringBuilder(open);
-                        str.insert(2, ":");
-                        open = str.toString();
+                            // - Format Close hour
+                            str = new StringBuilder(close);
+                            str.insert(2, ":");
+                            close = str.toString();
 
-                        // - Format Close hour
-                        str = new StringBuilder(close);
-                        str.insert(2, ":");
-                        close = str.toString();
-
-                        // - Fusion !!
-                        String opening_hours = open + " - " + close;
-                        responseN.getResults().get(i).setOpening(opening_hours);
+                            // - Fusion !!
+                            String opening_hours = open + " - " + close;
+                            responseN.getResults().get(i).setOpening(opening_hours);
+                        }
                     }
+                } catch (Exception e){
+                    e.printStackTrace();
+                } finally {
+                    responseN.getResults().get(i).setPhoneNumber(responseD.getResult().getPhoneNumber());
+                    responseN.getResults().get(i).setWebsite(responseD.getResult().getWebsite());
                 }
-                responseN.getResults().get(i).setPhoneNumber(responseD.getResult().getPhoneNumber());
-                responseN.getResults().get(i).setWebsite(responseD.getResult().getWebsite());
                 Log.e(TAG, "DetailPlaces On Next");
             }
 
